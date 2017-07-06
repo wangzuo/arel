@@ -1,0 +1,29 @@
+{
+  "name": "arel",
+  "version": "0.1.0",
+  "description": "arel",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangzuo/arel.git"
+  },
+  "author": "Wang Zuo <wzuoadjusted@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wangzuo/arel/issues"
+  },
+  "homepage": "https://github.com/wangzuo/arel#readme",
+  "devDependencies": {
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "jest": "^20.0.4"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "object-hash": "^1.1.8"
+  }
+}
