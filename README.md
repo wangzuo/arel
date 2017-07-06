@@ -1,4 +1,5 @@
 # Arel
+[![Build Status](https://travis-ci.org/wangzuo/arel.svg?branch=master)](https://travis-ci.org/wangzuo/arel) [![codecov](https://codecov.io/gh/wangzuo/arel/branch/master/graph/badge.svg)](https://codecov.io/gh/wangzuo/arel)
 
 * http://github.com/rails/arel
 * [API Documentation](http://www.rubydoc.info/github/rails/arel)
