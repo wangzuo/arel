@@ -1,11 +1,14 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/Arel.js',
+  entry: {
+    Arel: './src/Arel.js',
+    FakeRecord: './src/__fixtures__/FakeRecord'
+  },
   output: {
     path: path.resolve(__dirname, 'lib'),
-    filename: 'Arel.js',
-    library: 'Arel',
+    filename: '[name].js',
+    library: '[name]',
     libraryTarget: 'umd'
   },
   module: {
