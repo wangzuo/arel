@@ -3,28 +3,25 @@ import BindParam from './nodes/BindParam';
 import Casted, { Quoted } from './nodes/Casted';
 import { Attribute } from './attributes';
 
-const Nodes = {
-  buildQuoted(other, attribute = null) {
-    const { Attribute } = require('./attributes');
-    const { Table, SelectManager } = require('./Arel');
+export const buildQuoted = (other, attribute = null) => {
+  const { Attribute } = require('./attributes');
+  const { Table, SelectManager } = require('./Arel');
 
-    if (
-      [Node, Attribute, Table, BindParam, SelectManager, Quoted].indexOf(
-        other.constructor
-      ) >= 0
-    ) {
-      return other;
-    } else {
-      if (attribute instanceof Attribute) {
-        return new Casted(other, attribute);
-      }
-
-      return new Quoted(other);
+  if (
+    [Node, Attribute, Table, BindParam, SelectManager, Quoted].indexOf(
+      other.constructor
+    ) >= 0
+  ) {
+    return other;
+  } else {
+    if (attribute instanceof Attribute) {
+      return new Casted(other, attribute);
     }
+
+    return new Quoted(other);
   }
 };
 
-export default Nodes;
 export Node from './nodes/Node';
 export SelectStatement from './nodes/SelectStatement';
 export InsertStatement from './nodes/InsertStatement';

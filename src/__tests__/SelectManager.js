@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import { Base } from '../__fixtures__/FakeRecord';
-import Arel, { Table } from '../Arel';
+import * as Arel from '../Arel';
 import SelectManager from '../SelectManager';
 import { SqlLiteral, Grouping, And } from '../nodes';
 
+const { Table } = Arel;
 Table.engine = new Base();
 
 describe('SelectManager', () => {
@@ -69,7 +70,7 @@ describe('SelectManager', () => {
 
       it('can make a subselect', () => {
         let manager = new SelectManager();
-        manager.project(Arel.star);
+        manager.project(Arel.star());
         manager.from(Arel.sql('zomg'));
         const as = manager.as(Arel.sql('foo'));
 
@@ -184,7 +185,7 @@ describe('SelectManager', () => {
 
       it('takes multiple args', () => {
         const manager = new SelectManager();
-        manager.project(new SqlLiteral.new('foo'), new SqlLiteral.new('bar'));
+        manager.project(new SqlLiteral('foo'), new SqlLiteral('bar'));
         expect(manager.toSql()).toBe('SELECT foo, bar');
       });
 

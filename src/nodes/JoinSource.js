@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import Binary from './Binary';
 
 export default class JoinSource extends Binary {
@@ -7,6 +7,6 @@ export default class JoinSource extends Binary {
   }
 
   isEmpty() {
-    return !this.left && _.isEmpty(this.right);
+    return !this.left && isEmpty(this.right);
   }
 }

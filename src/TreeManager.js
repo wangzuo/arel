@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import extend from 'lodash/extend';
 import PlainString from './collectors/PlainString';
 import SQLString from './collectors/SQLString';
 
@@ -8,7 +8,7 @@ export default class TreeManager {
 
     this.ctx = null;
     this.bindValues = [];
-    _.extend(this, FactoryMethods);
+    extend(this, FactoryMethods);
   }
 
   toDot() {

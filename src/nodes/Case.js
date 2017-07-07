@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import last from 'lodash/last';
 import Node from './Node';
 import Binary from './Binary';
 import Unary from './Unary';
@@ -19,7 +19,7 @@ export default class Case extends Node {
   }
 
   then(expression) {
-    _.last(this.conditions).right = Nodes.buildQuoted(expression);
+    last(this.conditions).right = Nodes.buildQuoted(expression);
     return this;
   }
 

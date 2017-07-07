@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import extend from 'lodash/extend';
 import Node from './Node';
 
 class InfixOperation extends Node {
@@ -13,11 +13,11 @@ class InfixOperation extends Node {
     const { default: OrderPredications } = require('../OrderPredications');
     const { default: Math } = require('../Math');
 
-    _.extend(this, Expressions);
-    _.extend(this, Predications);
-    _.extend(this, AliasPredication);
-    _.extend(this, OrderPredications);
-    _.extend(this, Math);
+    extend(this, Expressions);
+    extend(this, Predications);
+    extend(this, AliasPredication);
+    extend(this, OrderPredications);
+    extend(this, Math);
   }
 }
 

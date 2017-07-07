@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import extend from 'lodash/extend';
 import Crud from './Crud';
 import FactoryMethods from './FactoryMethods';
 import SelectManager from './SelectManager';
@@ -12,8 +12,8 @@ export default class Table {
 
     // const { default: Crud } = require('./Crud');
     // const { default: FactoryMethods } = require('./FactoryMethods');
-    _.extend(this, Crud);
-    _.extend(this, FactoryMethods);
+    extend(this, Crud);
+    extend(this, FactoryMethods);
 
     this.name = name;
     this.typeCaster = typeCaster || null;

@@ -1,4 +1,9 @@
-import _ from 'lodash';
+import trimEnd from 'lodash/trimEnd';
+import isArray from 'lodash/isArray';
+import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
+import forEach from 'lodash/forEach';
+import isNull from 'lodash/isNull';
 import Reduce from './Reduce';
 import SQLString from '../collectors/SQLString';
 
@@ -50,18 +55,18 @@ export default class ToSql extends Reduce {
   visitUpdateStatement(o, collector) {
     const { In } = require('../nodes');
     const wheres =
-      _.isEmpty(o.orders) && _.isNull(o.limit)
+      isEmpty(o.orders) && isNull(o.limit)
         ? o.wheres
         : [new In(o.key, [this.buildSubselect(o.key, o)])];
 
     collector.append('UPDATE ');
     collector = this.visit(o.relation, collector);
-    if (!_.isEmpty(o.values)) {
+    if (!isEmpty(o.values)) {
       collector.append(' SET ');
       collector = this.injectJoin(o.values, collector, ', ');
     }
 
-    if (!_.isEmpty(wheres)) {
+    if (!isEmpty(wheres)) {
       collector.append(' WHERE ');
       collector = this.injectJoin(wheres, collector, ' AND ');
     }
@@ -129,7 +134,7 @@ export default class ToSql extends Reduce {
     this.collectNodesFor(o.wheres, collector, WHERE, AND);
     this.collectNodesFor(o.groups, collector, GROUP_BY);
 
-    if (!_.isEmpty(o.havings)) {
+    if (!isEmpty(o.havings)) {
       collector.append(' HAVING ');
       this.injectJoin(o.havings, collector, AND);
     }
@@ -198,7 +203,7 @@ export default class ToSql extends Reduce {
   }
 
   visitSelectManager(o, collector) {
-    return collector.append(`(${_.trimEnd(o.toSql())})`);
+    return collector.append(`(${trimEnd(o.toSql())})`);
   }
 
   // def literal o, collector; collector << o.to_s; end
@@ -318,7 +323,7 @@ export default class ToSql extends Reduce {
       collector.append('(');
       const rowLen = row.length - 1;
 
-      _.forEach(row, (value, k) => {
+      forEach(row, (value, k) => {
         if (value instanceof SqlLiteral || value instanceof BindParam) {
           collector = this.visit(value, collector);
         } else {
@@ -339,7 +344,7 @@ export default class ToSql extends Reduce {
   }
 
   visitIn(o, collector) {
-    if (_.isArray(o.right) && _.isEmpty(o.right)) {
+    if (isArray(o.right) && isEmpty(o.right)) {
       collector.append('1=0');
     } else {
       collector = this.visit(o.left, collector);
@@ -371,7 +376,7 @@ export default class ToSql extends Reduce {
       collector = this.visit(o.left, collector);
     }
 
-    if (!_.isEmpty(o.right)) {
+    if (!isEmpty(o.right)) {
       if (o.left) {
         collector.append(SPACE);
       }
@@ -396,7 +401,7 @@ export default class ToSql extends Reduce {
     const right = o.right;
     collector = this.visit(o.left, collector);
 
-    if (_.isEmpty(right)) {
+    if (isEmpty(right)) {
       collector.append(' IS NULL');
     } else {
       collector.append(' = ');

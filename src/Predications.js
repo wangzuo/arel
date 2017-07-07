@@ -45,8 +45,8 @@ const Predications = {
   groupingAll(methodId, others, ...extras) {},
 
   quotedNode(other) {
-    const { default: Nodes } = require('./nodes');
-    return Nodes.buildQuoted(other, this);
+    const { buildQuoted } = require('./nodes');
+    return buildQuoted(other, this);
   },
 
   quotedArray(others) {

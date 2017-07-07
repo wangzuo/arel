@@ -1,18 +1,9 @@
-import { Node, SqlLiteral } from './nodes';
-import Table from './Table';
+import { SqlLiteral } from './nodes';
 
-const Arel = {
-  VERSION: '8.0.0',
-  sql(rawSql) {
-    return new SqlLiteral(rawSql);
-  },
-
-  star() {
-    return Arel.sql('*');
-  },
-
-  Node
-};
-
-export { Table };
-export default Arel;
+export const sql = rawSql => new SqlLiteral(rawSql);
+export const star = () => new SqlLiteral('*');
+export Table from './Table';
+export { Node } from './nodes';
+export * as nodes from './nodes';
+export * as attributes from './attributes';
+export * as visitors from './visitors';

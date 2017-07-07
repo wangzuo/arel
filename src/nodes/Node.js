@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import extend from 'lodash/extend';
 // import Not from './Not';
 // import And from './And';
 // import Table from '../Table';
@@ -8,7 +8,7 @@ import _ from 'lodash';
 export default class Node {
   constructor() {
     const FactoryMethods = require('../FactoryMethods').default;
-    _.extend(this, FactoryMethods);
+    extend(this, FactoryMethods);
   }
 
   not() {

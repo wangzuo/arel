@@ -16,8 +16,8 @@ export default class DeleteManager extends TreeManager {
 
   take(limit) {
     if (limit) {
-      const { Limit, default: Nodes } = require('./nodes');
-      this.ast.limit = new Limit(Nodes.buildQuoted(limit));
+      const { Limit, buildQuoted } = require('./nodes');
+      this.ast.limit = new Limit(buildQuoted(limit));
     }
   }
 

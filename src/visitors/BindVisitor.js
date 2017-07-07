@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import isString from 'lodash/isString';
 
 export default superclass =>
   class BindVisitor extends superclass {
@@ -31,7 +31,7 @@ export default superclass =>
       if (this.block) {
         const val = this.block();
 
-        if (_.isString(val)) {
+        if (isString(val)) {
           return collector.append(val);
         }
       } else {

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import extend from 'lodash/extend';
 
 export default class Attribute {
   constructor(relation, name) {
@@ -11,11 +11,11 @@ export default class Attribute {
     const { default: OrderPredications } = require('../OrderPredications');
     const { Math } = require('../Math');
 
-    _.extend(this, Expressions);
-    _.extend(this, Predications);
-    _.extend(this, AliasPredication);
-    _.extend(this, OrderPredications);
-    _.extend(this, Math);
+    extend(this, Expressions);
+    extend(this, Predications);
+    extend(this, AliasPredication);
+    extend(this, OrderPredications);
+    extend(this, Math);
   }
 
   lower() {

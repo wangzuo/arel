@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import extend from 'lodash/extend';
 import Node from './Node';
 import SqlLiteral from './SqlLiteral';
 
@@ -10,9 +10,9 @@ export default class Function extends Node {
     const { default: WindowPredications } = require('../WindowPredications');
     const { default: OrderPredications } = require('../OrderPredications');
 
-    _.extend(this, Predications);
-    _.extend(this, WindowPredications);
-    _.extend(this, OrderPredications);
+    extend(this, Predications);
+    extend(this, WindowPredications);
+    extend(this, OrderPredications);
 
     this.expressions = expr;
     this.alias = aliaz && new SqlLiteral(aliaz);

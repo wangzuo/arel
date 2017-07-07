@@ -1,4 +1,8 @@
-import _ from 'lodash';
+import compact from 'lodash/compact';
+import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
+import last from 'lodash/last';
+import extend from 'lodash/extend';
 import TreeManager from './TreeManager';
 
 class Row {
@@ -18,10 +22,10 @@ export default class SelectManager extends TreeManager {
     const { default: Crud } = require('./Crud');
     const { SelectStatement } = require('./nodes');
 
-    _.extend(this, Crud);
+    extend(this, Crud);
 
     this.ast = new SelectStatement();
-    this.ctx = _.last(this.ast.cores);
+    this.ctx = last(this.ast.cores);
     this.from(table);
   }
 
@@ -62,21 +66,21 @@ export default class SelectManager extends TreeManager {
 
   as(other) {
     const { SqlLiteral } = require('./nodes');
-    if (_.isString(other)) {
+    if (isString(other)) {
       other = new SqlLiteral(other);
     }
     return this.createTableAlias(this.grouping(this.ast), other);
   }
 
   lock(locking) {
-    const Arel = require('./');
+    const Arel = require('./Arel');
     const { SqlLiteral, Lock } = require('./nodes');
 
     locking = locking || Arel.sql('FOR UPDATE');
 
     if (locking === true) {
       locking = Arel.sql('FOR UPDATE');
-    } else if (_.isString(locking) || locking instanceof SqlLiteral) {
+    } else if (isString(locking) || locking instanceof SqlLiteral) {
       locking = Arel.sql(locking);
     }
 
@@ -90,7 +94,7 @@ export default class SelectManager extends TreeManager {
 
   on(...exprs) {
     const { On } = require('./nodes');
-    _.last(this.ctx.source.right).right = new On(this.collapse(exprs));
+    last(this.ctx.source.right).right = new On(this.collapse(exprs));
     return this;
   }
 
@@ -98,7 +102,7 @@ export default class SelectManager extends TreeManager {
     const { SqlLiteral, Group } = require('./nodes');
 
     columns.forEach(column => {
-      if (_.isString(column)) {
+      if (isString(column)) {
         column = new SqlLiteral(column);
       }
       this.ctx.groups.push(new Group(column));
@@ -109,7 +113,7 @@ export default class SelectManager extends TreeManager {
 
   from(table) {
     const { SqlLiteral, Join } = require('./nodes');
-    if (_.isString(table)) {
+    if (isString(table)) {
       table = new SqlLiteral(table);
     }
 
@@ -123,7 +127,7 @@ export default class SelectManager extends TreeManager {
   }
 
   froms() {
-    return _.compact(this.ast.cores.map(x => x.from()));
+    return compact(this.ast.cores.map(x => x.from()));
   }
 
   join(relation, klass) {
@@ -131,8 +135,8 @@ export default class SelectManager extends TreeManager {
     const { InnerJon, SqlLiteral, StringJoin } = require('./nodes');
     klass = klass || InnerJon;
 
-    if (_.isString(relation) || relation instanceof SqlLiteral) {
-      if (_.isEmpty(relation)) throw new Error('empty join error');
+    if (isString(relation) || relation instanceof SqlLiteral) {
+      if (isEmpty(relation)) throw new Error('empty join error');
 
       klass = StringJoin;
     }
@@ -161,7 +165,7 @@ export default class SelectManager extends TreeManager {
   project(...projections) {
     const { SqlLiteral } = require('./nodes');
     this.ctx.projections = this.ctx.projections.concat(
-      projections.map(x => (_.isString(x) ? new SqlLiteral(x) : x))
+      projections.map(x => (isString(x) ? new SqlLiteral(x) : x))
     );
     return this;
   }
@@ -204,9 +208,9 @@ export default class SelectManager extends TreeManager {
   }
 
   whereSql(engine) {
-    if (_.isEmpty(this.ctx.wheres)) return;
+    if (isEmpty(this.ctx.wheres)) return;
 
-    const { Table } = require('./');
+    const { Table } = require('./Arel');
     const { WhereSql } = require('./visitors/WhereSql');
     engine = engine || Table.engine;
 
@@ -266,8 +270,8 @@ export default class SelectManager extends TreeManager {
     }
 
     const { SqlLiteral } = require('./nodes');
-    exprs = _.compact(exprs).map(
-      expr => (_.isString(expr) ? new SqlLiteral(expr) : expr)
+    exprs = compact(exprs).map(
+      expr => (isString(expr) ? new SqlLiteral(expr) : expr)
     );
     if (exprs.length === 1) {
       return exprs[0];

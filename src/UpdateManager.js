@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import TreeManager from './TreeManager';
 
 export default class UpdateManager extends TreeManager {
@@ -13,16 +12,16 @@ export default class UpdateManager extends TreeManager {
 
   take(limit) {
     if (limit) {
-      const { Limit, default: Nodes } = require('./nodes');
-      this.ast.limit = new Limit(Nodes.buildQuoted(limit));
+      const { Limit, buildQuoted } = require('./nodes');
+      this.ast.limit = new Limit(buildQuoted(limit));
     }
 
     return this;
   }
 
   set key(key) {
-    const { default: Nodes } = require('./nodes');
-    this.ast.key = Nodes.buildQuoted(key);
+    const { buildQuoted } = require('./nodes');
+    this.ast.key = buildQuoted(key);
   }
 
   get key() {

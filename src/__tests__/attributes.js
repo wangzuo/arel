@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { Table } from '../Arel';
-import Attributes, {
+import * as Attributes from '../attributes';
+
+const {
   Attribute,
   Undefined,
   String,
@@ -9,7 +11,7 @@ import Attributes, {
   Decimal,
   Boolean,
   Time
-} from '../attributes';
+} = Attributes;
 
 class Column {
   constructor(type) {
@@ -42,40 +44,40 @@ describe('attributes', () => {
     it('deals with unknown column types', () => {
       const column = new Column('crazy');
 
-      expect(Attributes.for(column)).toBe(Undefined);
+      expect(Attributes.forColumn(column)).toBe(Undefined);
     });
 
     it('returns the correct constant for strings', () => {
       ['string', 'text', 'binary'].forEach(type => {
         const column = new Column(type);
-        expect(Attributes.for(column)).toBe(String);
+        expect(Attributes.forColumn(column)).toBe(String);
       });
     });
 
     it('returns the correct constant for ints', () => {
       const column = new Column('integer');
-      expect(Attributes.for(column)).toBe(Integer);
+      expect(Attributes.forColumn(column)).toBe(Integer);
     });
 
     it('returns the correct constant for floats', () => {
       const column = new Column('float');
-      expect(Attributes.for(column)).toBe(Float);
+      expect(Attributes.forColumn(column)).toBe(Float);
     });
 
     it('returns the correct constant for decimals', () => {
       const column = new Column('decimal');
-      expect(Attributes.for(column)).toBe(Decimal);
+      expect(Attributes.forColumn(column)).toBe(Decimal);
     });
 
     it('returns the correct constant for boolean', () => {
       const column = new Column('boolean');
-      expect(Attributes.for(column)).toBe(Boolean);
+      expect(Attributes.forColumn(column)).toBe(Boolean);
     });
 
     it('returns the correct constant for time', () => {
       ['date', 'datetime', 'timestamp', 'time'].forEach(type => {
         const column = new Column(type);
-        expect(Attributes.for(column)).toBe(Time);
+        expect(Attributes.forColumn(column)).toBe(Time);
       });
     });
   });

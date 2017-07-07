@@ -1,11 +1,4 @@
 {
-  "env": {
-    "development": {
-      "presets": [["env", { "modules": false}], "stage-0"],
-      "plugins": ["transform-runtime"]
-    },
-    "test": {
-      "presets": ["env", "stage-0"]
-    }
-  }
+  "presets": ["env", "stage-0"],
+  "plugins": ["transform-runtime"]
 }

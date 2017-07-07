@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import TreeManager from './TreeManager';
 
 export default class InsertManager extends TreeManager {
@@ -27,9 +28,9 @@ export default class InsertManager extends TreeManager {
   }
 
   insert(fields) {
-    if (_.isEmpty(fields)) return;
+    if (isEmpty(fields)) return;
 
-    if (_.isString(fields)) {
+    if (isString(fields)) {
       const { SqlLiteral } = require('./nodes');
       this.ast.values = new SqlLiteral(fields);
     } else {
