@@ -1,17 +1,17 @@
 import _ from 'lodash';
-import TableAlias from './nodes/TableAlias';
+import Crud from './Crud';
+import FactoryMethods from './FactoryMethods';
 import SelectManager from './SelectManager';
-import InnerJoin from './nodes/InnerJoin';
-import OuterJoin from './nodes/OuterJoin';
-import Attribute from './attributes/Attribute';
+import { TableAlias, InnerJoin, OuterJoin } from './nodes';
+import { Attribute } from './attributes';
 
 export default class Table {
   constructor(name, options = {}) {
     const as = options.as || null;
     const typeCaster = options.typeCaster || null;
 
-    const { default: Crud } = require('./Crud');
-    const { default: FactoryMethods } = require('./FactoryMethods');
+    // const { default: Crud } = require('./Crud');
+    // const { default: FactoryMethods } = require('./FactoryMethods');
     _.extend(this, Crud);
     _.extend(this, FactoryMethods);
 

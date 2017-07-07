@@ -1,5 +1,5 @@
 import { Base } from '../__fixtures__/FakeRecord';
-import Arel, { Table } from '../';
+import Arel, { Table } from '../Arel';
 import InsertManager from '../InsertManager';
 import SelectManager from '../SelectManager';
 import { Values } from '../nodes';

@@ -1,4 +1,3 @@
-import ToSql from './visitors/ToSql';
-import Reduce from './visitors/Reduce';
-
-export { Reduce, ToSql };
+export ToSql from './visitors/ToSql';
+export Reduce from './visitors/Reduce';
+export BindVisitor from './visitors/BindVisitor';

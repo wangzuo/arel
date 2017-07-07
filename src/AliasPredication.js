@@ -1,7 +1,7 @@
 const AliasPredication = {
   as(other) {
-    const { As } = require('./nodes/Binary');
-    const { default: SqlLiteral } = require('./nodes/SqlLiteral');
+    const { As } = require('./nodes');
+    const { SqlLiteral } = require('./nodes');
 
     return new As(this, new SqlLiteral(other));
   }

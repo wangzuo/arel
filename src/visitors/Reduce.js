@@ -9,7 +9,6 @@ export default class Reduce extends Visitor {
 
   visit(object, collector) {
     const method = `visit${object.constructor.name}`;
-    // console.log('visit', method, collector);
 
     if (!this[method]) throw new Error(method + ' missing');
     return this[method](object, collector);

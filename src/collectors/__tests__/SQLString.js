@@ -1,7 +1,7 @@
 import ToSql from '../../visitors/ToSql';
 import SQLString from '../SQLString';
 import { Base } from '../../__fixtures__/FakeRecord';
-import { Table } from '../..';
+import { Table } from '../../Arel';
 const { BindParam } = require('../../nodes');
 import SelectManager from '../../SelectManager';
 

@@ -33,10 +33,10 @@ export default class Dot extends Visitor {
 
   // private
 
-  visit_Arel_Nodes_Ordering(o) {}
-  visit_Arel_Nodes_TableAlias(o) {}
-  visit_Arel_Nodes_Count(o) {}
-  visit_Arel_Nodes_Values(o) {}
-  visit_Arel_Nodes_StringJoin(o) {}
-  visit_Arel_Nodes_InnerJoin(o) {}
+  visitOrdering(o) {}
+  visitTableAlias(o) {}
+  visitCount(o) {}
+  visitValues(o) {}
+  visitStringJoin(o) {}
+  visitInnerJoin(o) {}
 }

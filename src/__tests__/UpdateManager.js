@@ -1,5 +1,5 @@
 import { Base } from '../__fixtures__/FakeRecord';
-import { Table } from '../';
+import { Table } from '../Arel';
 import UpdateManager from '../UpdateManager';
 import { BindParam, SqlLiteral, JoinSource } from '../nodes';
 

@@ -5,7 +5,7 @@ export default class InsertManager extends TreeManager {
   constructor() {
     super();
 
-    const { default: InsertStatement } = require('./nodes/InsertStatement');
+    const { InsertStatement } = require('./nodes');
     this.ast = new InsertStatement();
   }
 
@@ -30,7 +30,7 @@ export default class InsertManager extends TreeManager {
     if (_.isEmpty(fields)) return;
 
     if (_.isString(fields)) {
-      const { default: SqlLiteral } = require('./nodes/SqlLiteral');
+      const { SqlLiteral } = require('./nodes');
       this.ast.values = new SqlLiteral(fields);
     } else {
       this.ast.relation = this.ast.relation || fields[0][0].relation;

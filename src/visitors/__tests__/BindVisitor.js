@@ -1,40 +1,31 @@
 import _ from 'lodash';
-import Arel, { Table } from '../..';
+import { Base } from '../../__fixtures__/FakeRecord';
+import Arel, { Table } from '../../Arel';
 import SQLString from '../../collectors/SQLString';
 import { BindParam } from '../../nodes';
 import BindVisitor from '../BindVisitor';
 import UpdateManager from '../../UpdateManager';
+import ToSql from '../ToSql';
 
-const collector = new SQLString();
+Table.engine = new Base();
+
+class Visitor extends BindVisitor(ToSql) {}
 
 test('assignment binds are substituted', () => {
+  const collector = new SQLString();
   const table = new Table('users');
   const um = new UpdateManager();
   const bp = new BindParam();
   um.set([[table.column('name'), bp]]);
-  class Visitor extends ToSql {
-    constructor() {
-      super();
-      _.extend(this, BindVisitor);
-    }
-  }
   const visitor = new Visitor(Table.engine.connection);
   const assignment = um.ast.values[0];
-  const actual = visitor.accept(assignment, collector, () => {
-    'replace';
-  });
-  expect(actual).toBe(true);
+  const actual = visitor.accept(assignment, collector, () => 'replace');
   expect(actual.value).toBe('"name" = replace');
 });
 
 test('visitor yields on binds', () => {
-  class Visitor extends ToSql {
-    constructor() {
-      super();
-      _.extend(this, BindVisitor);
-    }
-  }
-  const visitor = new Visitor();
+  const collector = new SQLString();
+  const visitor = new Visitor(null);
   const bp = new BindParam();
   let called = false;
   visitor.accept(bp, collector, () => {
@@ -44,13 +35,14 @@ test('visitor yields on binds', () => {
 });
 
 test('visitor only yields on binds', () => {
-  class Visitor extends ToSql {
-    constructor() {
-      super();
-      _.extend(this, BindVisitor);
-    }
-  }
-
-  const visitor = new Visitor();
+  const collector = new SQLString();
+  const visitor = new Visitor(null);
   const bp = Arel.sql('omg');
+  let called = false;
+
+  visitor.accept(bp, collector, () => {
+    called = true;
+  });
+
+  expect(called).toBe(false);
 });

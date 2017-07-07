@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Table } from '../';
+import { Table } from '../Arel';
 import Attributes, {
   Attribute,
   Undefined,

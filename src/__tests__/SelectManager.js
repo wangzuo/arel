@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Base } from '../__fixtures__/FakeRecord';
-import Arel, { Table } from '../';
+import Arel, { Table } from '../Arel';
 import SelectManager from '../SelectManager';
 import { SqlLiteral, Grouping, And } from '../nodes';
 

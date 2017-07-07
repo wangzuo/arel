@@ -18,7 +18,7 @@ export default class TreeManager {
   }
 
   toSql(engine) {
-    const { default: Table } = require('./Table');
+    const { Table } = require('./Arel');
     engine = engine || Table.engine;
 
     const collector = engine.connection.visitor.accept(

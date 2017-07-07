@@ -1,6 +1,6 @@
 const WindowPredications = {
   over(expr = null) {
-    const { default: Over } = require('./nodes/Over');
+    const { Over } = require('./nodes');
     return new Over(this, expr);
   }
 };

@@ -1,5 +1,4 @@
-import SqlLiteral from './nodes/SqlLiteral';
-import Node from './nodes/Node';
+import { Node, SqlLiteral } from './nodes';
 import Table from './Table';
 
 const Arel = {
@@ -8,10 +7,12 @@ const Arel = {
     return new SqlLiteral(rawSql);
   },
 
+  star() {
+    return Arel.sql('*');
+  },
+
   Node
 };
-
-Arel.star = Arel.sql('*');
 
 export { Table };
 export default Arel;

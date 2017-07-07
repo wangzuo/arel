@@ -1,4 +1,4 @@
-import Arel from '../../';
+import Arel from '../../Arel';
 import Table from '../../Table';
 import SqlLiteral from '../SqlLiteral';
 

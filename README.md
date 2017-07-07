@@ -1,5 +1,5 @@
 # Arel
-[![Build Status](https://travis-ci.org/wangzuo/arel.svg?branch=master)](https://travis-ci.org/wangzuo/arel) [![codecov](https://codecov.io/gh/wangzuo/arel/branch/master/graph/badge.svg)](https://codecov.io/gh/wangzuo/arel)
+[![Build Status](https://travis-ci.org/wangzuo/arel.svg?branch=master)](https://travis-ci.org/wangzuo/arel) [![codecov](https://codecov.io/gh/wangzuo/arel/branch/master/graph/badge.svg)](https://codecov.io/gh/wangzuo/arel) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 * http://github.com/rails/arel
 * [API Documentation](http://www.rubydoc.info/github/rails/arel)
@@ -47,13 +47,13 @@ First is the 'restriction' operator, `where`:
 
 ```javascript
 users.where(users.column('name').eq('amy'))
-# => SELECT * FROM users WHERE users.name = 'amy'
+// => SELECT * FROM users WHERE users.name = 'amy'
 ```
 
 What would, in SQL, be part of the `SELECT` clause is called in Arel a `projection`:
 
 ```javascript
-users.project(users.column('id))
+users.project(users.column('id'))
 # => SELECT users.id FROM users
 ```
 
@@ -129,8 +129,8 @@ users.skip(4) # => SELECT * FROM users OFFSET 4
 `GROUP BY` is called `group`:
 
 ```javascript
-users.project(users.column('name')).group(users.column('name))
-# => SELECT users.name FROM users GROUP BY users.name
+users.project(users.column('name')).group(users.column('name'))
+// => SELECT users.name FROM users GROUP BY users.name
 ```
 
 The best property of Arel is its "composability," or closure under all operations. For example, to restrict AND project, just "chain" the method invocations:
@@ -139,7 +139,7 @@ The best property of Arel is its "composability," or closure under all operation
 users
   .where(users.column('name').eq('amy'))
   .project(users.column('id'))
-# => SELECT users.id FROM users WHERE users.name = 'amy'
+// => SELECT users.id FROM users WHERE users.name = 'amy'
 ```
 
 All operators are chainable in this way, and they are chainable any number of times, in any order.
@@ -161,36 +161,36 @@ import { Table } from 'arel';
 posts = new Table('posts');
 posts.project(posts.column('title'))
 posts.distinct()
-posts.toSql() # => 'SELECT DISTINCT "posts"."title" FROM "posts"'
+posts.toSql() // => 'SELECT DISTINCT "posts"."title" FROM "posts"'
 ```
 
 Aggregate functions `AVG`, `SUM`, `COUNT`, `MIN`, `MAX`, `HAVING`:
 
 ```javascript
 photos.group(photos.column('user_id')).having(photos.column('id').count.gt(5))
-# => SELECT FROM photos GROUP BY photos.user_id HAVING COUNT(photos.id) > 5
+// => SELECT FROM photos GROUP BY photos.user_id HAVING COUNT(photos.id) > 5
 
 users.project(users.column('age').sum())
-# => SELECT SUM(users.age) FROM users
+// => SELECT SUM(users.age) FROM users
 
 users.project(users.column('age').average())
-# => SELECT AVG(users.age) FROM users
+// => SELECT AVG(users.age) FROM users
 
 users.project(users.column('age').maximum())
-# => SELECT MAX(users.age) FROM users
+// => SELECT MAX(users.age) FROM users
 
 users.project(users.column('age').minimum())
-# => SELECT MIN(users.age) FROM users
+// => SELECT MIN(users.age) FROM users
 
 users.project(users.column('age').count())
-# => SELECT COUNT(users.age) FROM users
+// => SELECT COUNT(users.age) FROM users
 ```
 
 Aliasing Aggregate Functions:
 
 ```javascript
 users.project(users.column('age').average.as('mean_age'))
-# => SELECT AVG(users.age) AS mean_age FROM users
+// => SELECT AVG(users.age) AS mean_age FROM users
 ```
 
 ### The Crazy Features
@@ -203,20 +203,20 @@ Suppose we have a table `products` with prices in different currencies. And we h
 
 ```javascript
 import { Table } from 'arel';
-products = new Table('posts');
-# Attributes: [:id, :name, :price, :currency_id]
+const products = new Table('posts');
+// Attributes: ['id', 'name', 'price', 'currency_id']
 
-currencyRates = new Table('currency_rates');
-# Attributes: [:from_id, :to_id, :date, :rate]
+const currencyRates = new Table('currency_rates');
+// Attributes: ['from_id', 'to_id', 'date', 'rate']
 ```
 
 Now, to order products by price in user preferred currency simply call:
 
 ```javascript
-products.
-  join(:currency_rates).on(products[:currency_id].eq(currency_rates[:from_id])).
-  where(currency_rates[:to_id].eq(user_preferred_currency), currency_rates[:date].eq(Date.today)).
-  order(products[:price] * currency_rates[:rate])
+products
+  .join('currency_rates').on(products.column('currency_id').eq(currency_rates.column('from_id')))
+  .where(currency_rates.column('to_id').eq(user_preferred_currency), currency_rates.column('date').eq(Date.today))
+  .order(products.column('price') * currency_rates.column('rate'))
 ```
 
 #### Complex Joins
@@ -224,24 +224,26 @@ products.
 Where Arel really shines is in its ability to handle complex joins and aggregations. As a first example, let's consider an "adjacency list", a tree represented in a table. Suppose we have a table `comments`, representing a threaded discussion:
 
 ```javascript
-comments = Arel::Table.new(:comments)
+import { Table } from 'arel';
+const comments = new Table('comments');
 ```
 
 And this table has the following attributes:
 
 ```javascript
-# [:id, :body, :parent_id]
+// ['id', 'body', 'parent_id']
 ```
 
 The `parent_id` column is a foreign key from the `comments` table to itself.
 Joining a table to itself requires aliasing in SQL. This aliasing can be handled from Arel as below:
 
 ```javascript
-replies = comments.alias
-comments_with_replies = \
-  comments.join(replies).on(replies[:parent_id].eq(comments[:id])).where(comments[:id].eq(1))
-# => SELECT * FROM comments INNER JOIN comments AS comments_2
-#    WHERE comments_2.parent_id = comments.id AND comments.id = 1
+const replies = comments.alias()
+const commentsWithReplies = comments
+  .join(replies).on(replies.column('parent_id').eq(comments.column('id'))
+  .where(comments.column('id').eq(1))
+// => SELECT * FROM comments INNER JOIN comments AS comments_2
+//    WHERE comments_2.parent_id = comments.id AND comments.id = 1
 ```
 
 This will return the reply for the first comment.
@@ -251,40 +253,42 @@ This will return the reply for the first comment.
 Create a `CTE`
 
 ```javascript
-cte_table = new Table('cte_table');
-composed_cte = Arel::Nodes::As.new(cte_table, photos.where(photos[:created_at].gt(Date.current)))
+import { As } from 'arel/nodes';
+const cteTable = new Table('cte_table');
+const composedCte = new As(cteTable, photos.where(photos.column('created_at').gt(Date.now())))
 ```
 
 Use the created `CTE`:
 
 ```javascript
-users.
-  join(cte_table).on(users[:id].eq(cte_table[:user_id])).
-  project(users[:id], cte_table[:click].sum).
-  with(composed_cte)
+users
+  .join(cteTable).on(users.column('id').eq(cteTable.column('user_id')))
+  .project(users.column('id'), cteTable.column('click').sum())
+  .with(composedCte)
 
-# => WITH cte_table AS (SELECT FROM photos  WHERE photos.created_at > '2014-05-02')
-#    SELECT users.id, SUM(cte_table.click)
-#    FROM users INNER JOIN cte_table ON users.id = cte_table.user_id
+// => WITH cteTable AS (SELECT FROM photos  WHERE photos.created_at > '2014-05-02')
+//    SELECT users.id, SUM(cte_table.click)
+//    FROM users INNER JOIN cteTable ON users.id = cteTable.user_id
 ```
 
 When your query is too complex for `Arel`, you can use `Arel::SqlLiteral`:
 
 ```javascript
-photo_clicks = Arel::Nodes::SqlLiteral.new(<<-SQL
-    CASE WHEN condition1 THEN calculation1
-    WHEN condition2 THEN calculation2
-    WHEN condition3 THEN calculation3
-    ELSE default_calculation END
-SQL
-)
+import { SqlLiteral } from 'arel/nodes';
 
-photos.project(photo_clicks.as("photo_clicks"))
-# => SELECT CASE WHEN condition1 THEN calculation1
-#    WHEN condition2 THEN calculation2
-#    WHEN condition3 THEN calculation3
-#    ELSE default_calculation END
-#    FROM "photos"
+const photoClicks = new SqlLiteral(`
+  CASE WHEN condition1 THEN calculation1
+  WHEN condition2 THEN calculation2
+  WHEN condition3 THEN calculation3
+  ELSE default_calculation END
+`)
+
+photos.project(photoClicks.as('photo_clicks'))
+// => SELECT CASE WHEN condition1 THEN calculation1
+//    WHEN condition2 THEN calculation2
+//    WHEN condition3 THEN calculation3
+//    ELSE default_calculation END
+//    FROM "photos"
 ```
 
 ## Contributing to Arel

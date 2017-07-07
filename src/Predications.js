@@ -1,6 +1,6 @@
 const Predications = {
   notEq(other) {
-    const { NotEqual } = require('./nodes/Binary');
+    const { NotEqual } = require('./nodes');
     return new NotEqual(this, this.quotedNode(other));
   },
 
@@ -13,7 +13,7 @@ const Predications = {
   },
 
   eq(other) {
-    const { default: Equality } = require('./nodes/Equality');
+    const { Equality } = require('./nodes');
     return new Equality(this, this.quotedNode(other));
   },
 
@@ -55,7 +55,7 @@ const Predications = {
 
   equalsQuoted(maybeQuoted, value) {
     const { Quoted } = require('./nodes');
-    if (maybeQuoted.instanceOf(Quoted)) {
+    if (maybeQuoted instanceof Quoted) {
       return maybeQuoted.val === value;
     }
 

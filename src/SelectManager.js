@@ -16,7 +16,7 @@ export default class SelectManager extends TreeManager {
     super();
 
     const { default: Crud } = require('./Crud');
-    const { default: SelectStatement } = require('./nodes/SelectStatement');
+    const { SelectStatement } = require('./nodes');
 
     _.extend(this, Crud);
 
@@ -76,7 +76,7 @@ export default class SelectManager extends TreeManager {
 
     if (locking === true) {
       locking = Arel.sql('FOR UPDATE');
-    } else if (_.isString(locking) || locking.instanceOf(SqlLiteral)) {
+    } else if (_.isString(locking) || locking instanceof SqlLiteral) {
       locking = Arel.sql(locking);
     }
 

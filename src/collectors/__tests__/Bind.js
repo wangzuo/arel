@@ -1,5 +1,5 @@
 import { Base } from '../../__fixtures__/FakeRecord';
-import { Table } from '../../';
+import { Table } from '../../Arel';
 import SelectManager from '../../SelectManager';
 import Bind from '../Bind';
 import ToSql from '../../visitors/ToSql';

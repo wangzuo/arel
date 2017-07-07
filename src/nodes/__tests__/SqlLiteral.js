@@ -1,4 +1,4 @@
-import Arel from '../../';
+import Arel from '../../Arel';
 import { Base } from '../../__fixtures__/FakeRecord';
 import SqlLiteral from '../SqlLiteral';
 import SQLString from '../../collectors/SQLString';

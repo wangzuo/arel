@@ -1,5 +1,5 @@
 import Table from '../../Table';
-import { NotEqual } from '../../nodes/Binary';
+import { NotEqual } from '../../nodes';
 
 describe('Attribute', () => {
   describe('#notEq', () => {

@@ -1,5 +1,4 @@
-import Attribute from './attributes/Attribute';
-import {
+import Attribute, {
   String,
   Integer,
   Float,

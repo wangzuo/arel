@@ -2,13 +2,13 @@ import _ from 'lodash';
 import Node from './Node';
 import SqlLiteral from './SqlLiteral';
 
-class Function extends Node {
+export default class Function extends Node {
   constructor(expr, aliaz = null) {
     super();
 
-    const Predications = require('../Predications').default;
-    const WindowPredications = require('../WindowPredications').default;
-    const OrderPredications = require('../OrderPredications').default;
+    const { default: Predications } = require('../Predications');
+    const { default: WindowPredications } = require('../WindowPredications');
+    const { default: OrderPredications } = require('../OrderPredications');
 
     _.extend(this, Predications);
     _.extend(this, WindowPredications);
@@ -34,4 +34,3 @@ export class Exists extends Function {}
 export class Max extends Function {}
 export class Min extends Function {}
 export class Avg extends Function {}
-export default Function;

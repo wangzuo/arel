@@ -1,14 +1,17 @@
 import { Base } from '../../__fixtures__/FakeRecord';
-import Arel, { Table } from '../../';
+import Arel, { Table } from '../../Arel';
 import ToSql from '../ToSql';
 import SQLString from '../../collectors/SQLString';
 import { Reduce } from '../../visitors';
-import {
+import Nodes, {
+  SelectStatement,
   BindParam,
   Values,
+  Limit,
   NamedFunction,
   Sum,
   Max,
+  Grouping,
   Min,
   Avg,
   Count,
@@ -77,7 +80,7 @@ describe('ToSql', () => {
 
   it('should handle nil with named functions', () => {
     const func = new NamedFunction('omg', [Arel.star]);
-    expect(compile(funct.eq(null))).toBe('omg(8) IS NULL');
+    expect(compile(func.eq(null))).toBe('omg(8) IS NULL');
   });
 
   it('should visit built-in functions', () => {
@@ -123,7 +126,7 @@ describe('ToSql', () => {
 
     it('should handle false', () => {
       const table = new Table('users');
-      const val = Nodes.build_quoted(false, table.column('active'));
+      const val = Nodes.buildQuoted(false, table.column('active'));
       const sql = compile(new Equality(val, val));
       expect(sql).toBe(`'f' = 'f'`);
     });
@@ -162,7 +165,7 @@ describe('ToSql', () => {
   it('should escape LIMIT', () => {
     const sc = new SelectStatement();
     sc.limit = new Limit(Nodes.buildQuoted('omg'));
-    expect(compile(src)).toBe(`LIMIT 'omg'`);
+    expect(compile(sc)).toBe(`LIMIT 'omg'`);
   });
 
   it('should contain a single space before ORDER BY', () => {

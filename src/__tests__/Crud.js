@@ -1,6 +1,6 @@
 import _ from 'lodash';
+import { Table } from '../Arel';
 import Crud from '../Crud';
-import Table from '../Table';
 import SelectManager from '../SelectManager';
 import InsertManager from '../InsertManager';
 import UpdateManager from '../UpdateManager';
