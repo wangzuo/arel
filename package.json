@@ -4,8 +4,10 @@
   "description": "arel",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "build": "rm -rf lib && webpack",
-    "test": "jest"
+    "pretest": "npm run build",
+    "prepublish": "npm run test"
   },
   "repository": {
     "type": "git",
