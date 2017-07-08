@@ -1,5 +1,8 @@
-import _ from 'lodash';
-import { ToSql } from '../visitors';
+import includes from 'lodash/includes';
+import zipObject from 'lodash/zipObject';
+import isNull from 'lodash/isNull';
+import isNumber from 'lodash/isNumber';
+import { ToSql } from './visitors';
 
 class Column {
   constructor(name, type) {
@@ -23,11 +26,11 @@ class Connection {
     };
 
     this._columnsHash = {
-      users: _.zipObject(
+      users: zipObject(
         this._columns.users.map(x => x.name),
         this._columns.users
       ),
-      products: _.zipObject(
+      products: zipObject(
         this._columns.products.map(x => x.name),
         this._columns.products
       )
@@ -50,7 +53,7 @@ class Connection {
   }
 
   dataSourceExists(name) {
-    return _.include(this.tables, name);
+    return includes(this.tables, name);
   }
 
   columns(name, message = null) {
@@ -74,9 +77,9 @@ class Connection {
       return `'t'`;
     } else if (thing === false) {
       return `'f'`;
-    } else if (_.isNull(thing)) {
+    } else if (isNull(thing)) {
       return 'NULL';
-    } else if (_.isNumber(thing)) {
+    } else if (isNumber(thing)) {
       return thing;
     }
 
@@ -102,7 +105,7 @@ class ConnectionPool {
   }
 
   tableExists(name) {
-    return _.include(this.connection.tables, name);
+    return includes(this.connection.tables, name);
   }
 
   get columnsHash() {

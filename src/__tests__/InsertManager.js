@@ -1,11 +1,9 @@
-import { Base } from '../__fixtures__/FakeRecord';
 import * as Arel from '../Arel';
 import InsertManager from '../InsertManager';
 import SelectManager from '../SelectManager';
 import { Values } from '../nodes';
 
 const { Table } = Arel;
-Table.engine = new Base();
 
 describe('insert manager', () => {
   describe('new', () => {

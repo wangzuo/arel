@@ -4,12 +4,9 @@
   <title>Arel</title>
 </head>
 <body>
-  <script src="../lib/FakeRecord.js"></script>
   <script src="../lib/Arel.js"></script>
   <script>
-    var Base = FakeRecord.Base;
     var Table = Arel.Table;
-    Table.engine = new Base();
     var users = new Table('users');
     console.log(users.project(Arel.sql('*')).toSql());
   </script>

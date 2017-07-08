@@ -1,9 +1,10 @@
+import * as Arel from '../../Arel';
+import { Base } from '../../FakeRecord';
 import ToSql from '../../visitors/ToSql';
 import SQLString from '../SQLString';
-import { Base } from '../../__fixtures__/FakeRecord';
-import { Table } from '../../Arel';
-const { BindParam } = require('../../nodes');
-import SelectManager from '../../SelectManager';
+
+const { Table, SelectManager } = Arel;
+const { BindParam } = Arel.nodes;
 
 const _conn = new Base();
 const _visitor = new ToSql(_conn.connection);

@@ -1,4 +1,5 @@
 import extend from 'lodash/extend';
+import { Base } from './FakeRecord';
 import Crud from './Crud';
 import FactoryMethods from './FactoryMethods';
 import SelectManager from './SelectManager';
@@ -85,3 +86,5 @@ export default class Table {
   typeCastForDatabase() {}
   ableToTypeCast() {}
 }
+
+Table.engine = new Base();

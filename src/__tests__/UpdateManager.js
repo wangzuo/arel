@@ -1,9 +1,8 @@
-import { Base } from '../__fixtures__/FakeRecord';
-import { Table } from '../Arel';
+import * as Arel from '../Arel';
 import UpdateManager from '../UpdateManager';
-import { BindParam, SqlLiteral, JoinSource } from '../nodes';
 
-Table.engine = new Base();
+const { Table } = Arel;
+const { BindParam, SqlLiteral, JoinSource } = Arel.nodes;
 
 describe('UpdateManager', () => {
   describe('new', () => {

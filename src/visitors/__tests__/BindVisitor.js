@@ -1,13 +1,12 @@
 import _ from 'lodash';
-import { Base } from '../../__fixtures__/FakeRecord';
-import Arel, { Table } from '../../Arel';
+import * as Arel from '../../Arel';
 import SQLString from '../../collectors/SQLString';
-import { BindParam } from '../../nodes';
 import BindVisitor from '../BindVisitor';
 import UpdateManager from '../../UpdateManager';
 import ToSql from '../ToSql';
 
-Table.engine = new Base();
+const { Table } = Arel;
+const { BindParam } = Arel.nodes;
 
 class Visitor extends BindVisitor(ToSql) {}
 

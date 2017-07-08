@@ -1,11 +1,9 @@
 import _ from 'lodash';
-import { Base } from '../__fixtures__/FakeRecord';
 import * as Arel from '../Arel';
 import SelectManager from '../SelectManager';
 import { SqlLiteral, Grouping, And } from '../nodes';
 
 const { Table } = Arel;
-Table.engine = new Base();
 
 describe('SelectManager', () => {
   function testJoinSources() {

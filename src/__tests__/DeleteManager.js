@@ -1,8 +1,5 @@
-import { Base } from '../__fixtures__/FakeRecord';
 import { Table } from '../Arel';
 import DeleteManager from '../DeleteManager';
-
-Table.engine = new Base();
 
 describe('delete manager', () => {
   describe('new', () => {

@@ -1,4 +1,3 @@
-import { Base } from '../__fixtures__/FakeRecord';
 import InsertManager from '../InsertManager';
 import TreeManager from '../TreeManager';
 import Table from '../Table';
@@ -12,10 +11,6 @@ import {
 } from '../nodes';
 
 let _relation = null;
-
-beforeAll(() => {
-  Table.engine = new Base();
-});
 
 beforeEach(() => {
   _relation = new Table('users');

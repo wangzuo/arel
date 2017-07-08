@@ -1,5 +1,5 @@
-import Arel from '../../Arel';
-import { Base } from '../../__fixtures__/FakeRecord';
+import * as Arel from '../../Arel';
+import { Base } from '../../FakeRecord';
 import SqlLiteral from '../SqlLiteral';
 import SQLString from '../../collectors/SQLString';
 import { ToSql } from '../../visitors';

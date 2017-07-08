@@ -2,8 +2,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    Arel: './src/Arel.js',
-    FakeRecord: './src/__fixtures__/FakeRecord'
+    Arel: './src/Arel.js'
   },
   output: {
     path: path.resolve(__dirname, 'lib'),

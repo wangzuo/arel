@@ -1,9 +1,12 @@
-import { Base } from '../../__fixtures__/FakeRecord';
-import Arel, { Table } from '../../Arel';
+import { Base } from '../../FakeRecord';
+import * as Arel from '../../Arel';
 import ToSql from '../ToSql';
 import SQLString from '../../collectors/SQLString';
 import { Reduce } from '../../visitors';
-import Nodes, {
+
+const { Table } = Arel;
+const {
+  buildQuoted,
   SelectStatement,
   BindParam,
   Values,
@@ -16,7 +19,7 @@ import Nodes, {
   Avg,
   Count,
   Equality
-} from '../../nodes';
+} = Arel.nodes;
 
 let conn = null;
 let visitor = null;
@@ -126,7 +129,7 @@ describe('ToSql', () => {
 
     it('should handle false', () => {
       const table = new Table('users');
-      const val = Nodes.buildQuoted(false, table.column('active'));
+      const val = buildQuoted(false, table.column('active'));
       const sql = compile(new Equality(val, val));
       expect(sql).toBe(`'f' = 'f'`);
     });
@@ -139,20 +142,20 @@ describe('ToSql', () => {
 
   describe('Grouping', () => {
     it('wraps nested groupings in brackets only once', () => {
-      const sql = compile(new Grouping(new Grouping(Nodes.buildQuoted('foo'))));
+      const sql = compile(new Grouping(new Grouping(buildQuoted('foo'))));
       expect(sql).toBe(`"('foo')"`);
     });
   });
 
   describe('NotEqual', () => {
     it('should handle false', () => {
-      const val = Nodes.buildQuoted(null, table.column('active'));
+      const val = buildQuoted(null, table.column('active'));
       const sql = compile(new NotEqual(table.column('active'), val));
       expect(sql).toBe(`"users"."name" != 'f'`);
     });
 
     it('should handle null', () => {
-      const val = Nodes.buildQuoted(null, table.column('active'));
+      const val = buildQuoted(null, table.column('active'));
       const sql = compile(new NotEqual(table.column('name'), val));
       expect(sql).toBe('"users"."name" IS NOT NULL');
     });
@@ -164,7 +167,7 @@ describe('ToSql', () => {
 
   it('should escape LIMIT', () => {
     const sc = new SelectStatement();
-    sc.limit = new Limit(Nodes.buildQuoted('omg'));
+    sc.limit = new Limit(buildQuoted('omg'));
     expect(compile(sc)).toBe(`LIMIT 'omg'`);
   });
 
