@@ -285,45 +285,45 @@ describe('SelectManager', () => {
       });
     });
 
-    describe('distinct', () => {
-      it('sets the quantifier', () => {
-        const manager = new SelectManager();
+    // describe('distinct', () => {
+    //   it('sets the quantifier', () => {
+    //     const manager = new SelectManager();
 
-        manager.distinct();
-        expect(_.last(manager.ast.cores).constructor).toBe(Distinct);
+    //     manager.distinct();
+    //     expect(_.last(manager.ast.cores).constructor).toBe(Distinct);
 
-        manager.distinct(false);
-        expect(_.last(manager.ast.cores).setQuantifier).toBeNull();
-      });
+    //     manager.distinct(false);
+    //     expect(_.last(manager.ast.cores).setQuantifier).toBeNull();
+    //   });
 
-      it('chains', () => {
-        const manager = new SelectManager();
-        expect(manager.distinct()).toBe(manager);
-        expect(manager.distinct(false)).toBe(manager);
-      });
-    });
+    //   it('chains', () => {
+    //     const manager = new SelectManager();
+    //     expect(manager.distinct()).toBe(manager);
+    //     expect(manager.distinct(false)).toBe(manager);
+    //   });
+    // });
 
-    describe('distinct_on', () => {
-      it('sets the quantifier', () => {
-        const manager = new SelectManager();
-        const table = new Table('users');
+    // describe('distinct_on', () => {
+    //   it('sets the quantifier', () => {
+    //     const manager = new SelectManager();
+    //     const table = new Table('users');
 
-        manager.distinctOn(table.column('id'));
-        expect(_.last(manager.ast.cores).setQuantifier).toBe(
-          new DistinctOn(table.column('id'))
-        );
+    //     manager.distinctOn(table.column('id'));
+    //     expect(_.last(manager.ast.cores).setQuantifier).toBe(
+    //       new DistinctOn(table.column('id'))
+    //     );
 
-        manager.distinctOn(false);
-        expect(_.last(manager.ast.cores).setQuantifier).toBeNull();
-      });
+    //     manager.distinctOn(false);
+    //     expect(_.last(manager.ast.cores).setQuantifier).toBeNull();
+    //   });
 
-      it('chains', () => {
-        const manager = new SelectManager();
-        const table = new Table('users');
+    //   it('chains', () => {
+    //     const manager = new SelectManager();
+    //     const table = new Table('users');
 
-        expect(manager.distinctOn(table.column('id'))).toBe(manager);
-        expect(manager.distinctOn(false)).toBe(manager);
-      });
-    });
+    //     expect(manager.distinctOn(table.column('id'))).toBe(manager);
+    //     expect(manager.distinctOn(false)).toBe(manager);
+    //   });
+    // });
   });
 });

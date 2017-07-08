@@ -8,7 +8,6 @@
 Arel Really Exasperates Logicians
 
 Arel is a SQL AST manager for Ruby. It
-
 1. simplifies the generation of complex SQL queries, and
 2. adapts to various RDBMSes.
 
@@ -21,11 +20,9 @@ For the moment, Arel uses Active Record's connection adapters to connect to the 
 
 ## A Gentle Introduction
 Generating a query with Arel is simple. For example, in order to produce
-
 ```sql
 SELECT * FROM users
 ```
-
 you construct a table relation and convert it to SQL:
 
 ```javascript

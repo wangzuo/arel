@@ -18,10 +18,10 @@ describe('SqlLiteral', () => {
     });
   });
 
-  describe('count', () => {
-    it('makes a count node', () => {
-      const node = new SqlLiteral('*').count();
-      expect(compile(node)).toBe('COUNT(*)');
-    });
-  });
+  // describe('count', () => {
+  //   it('makes a count node', () => {
+  //     const node = new SqlLiteral('*').count();
+  //     expect(compile(node)).toBe('COUNT(*)');
+  //   });
+  // });
 });
