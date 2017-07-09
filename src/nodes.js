@@ -43,7 +43,11 @@ export In from './nodes/In';
 export UnqualifiedColumn from './nodes/UnqualifiedColumn';
 export JoinSource from './nodes/JoinSource';
 export TableAlias from './nodes/TableAlias';
-export Distinct from './nodes/terminal';
+
+export class Distinct extends Node {
+  hash() {}
+  eql() {}
+}
 
 export class Bin extends Unary {}
 export class Cube extends Unary {}
