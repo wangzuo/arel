@@ -1,4 +1,4 @@
-// import hash from 'object-hash';
+import hash from '../hash';
 import Node from './Node';
 import JoinSource from './JoinSource';
 

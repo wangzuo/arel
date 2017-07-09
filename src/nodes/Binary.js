@@ -1,4 +1,4 @@
-// import hash from 'object-hash';
+import hash from '../hash';
 import Node from './Node';
 
 class Binary extends Node {
@@ -9,7 +9,7 @@ class Binary extends Node {
   }
 
   get hash() {
-    return hash([this.constructor, this.left, this.right]);
+    return hash([this.constructor.name, this.left, this.right]);
   }
 
   eql() {}
