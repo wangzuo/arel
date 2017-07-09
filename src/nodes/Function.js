@@ -28,9 +28,3 @@ export default class Function extends Node {
 
   eql(other) {}
 }
-
-export class Sum extends Function {}
-export class Exists extends Function {}
-export class Max extends Function {}
-export class Min extends Function {}
-export class Avg extends Function {}

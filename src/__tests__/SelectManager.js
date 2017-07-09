@@ -2,7 +2,17 @@ import _ from 'lodash';
 import * as Arel from '../Arel';
 
 const { Table, SelectManager } = Arel;
-const { Distinct, SqlLiteral, Grouping, And, DistinctOn } = Arel.nodes;
+const {
+  As,
+  Distinct,
+  SqlLiteral,
+  Grouping,
+  And,
+  DistinctOn,
+  OuterJoin,
+  FullOuterJoin,
+  RightOuterJoin
+} = Arel.nodes;
 
 describe('SelectManager', () => {
   function testJoinSources() {
@@ -172,6 +182,494 @@ describe('SelectManager', () => {
     //     expect(m3.toSql()).toBe(mgr.toSql());
     //   });
     // });
+
+    describe('initialize', () => {
+      it('uses alias in sql', () => {
+        const table = new Table('users', { as: 'foo' });
+        const mgr = table.from();
+        mgr.skip(10);
+        expect(mgr.toSql()).toBe(`SELECT FROM "users" "foo" OFFSET 10`);
+      });
+    });
+
+    describe('skip', () => {
+      it('should add an offset', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        mgr.skip(10);
+        expect(mgr.toSql()).toBe(`SELECT FROM "users" OFFSET 10`);
+      });
+
+      it('should chain', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        expect(mgr.skip(10).toSql()).toBe(`SELECT FROM "users" OFFSET 10`);
+      });
+    });
+
+    describe('offset', () => {
+      it('should add an offset', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        mgr.offset = 10;
+        expect(mgr.toSql()).toBe(`SELECT FROM "users" OFFSET 10`);
+      });
+
+      it('should remove an offset', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        mgr.offset = 10;
+        expect(mgr.toSql()).toBe(`SELECT FROM "users" OFFSET 10`);
+
+        mgr.offset = null;
+        expect(mgr.toSql()).toBe(`SELECT FROM "users"`);
+      });
+
+      it('should return the offset', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        mgr.offset = 10;
+        expect(mgr.offset).toBe(10);
+      });
+    });
+
+    describe('exists', () => {
+      it('should create an exists clause', () => {
+        const table = new Table('users');
+        const manager = new SelectManager(table);
+        manager.project(new SqlLiteral('*'));
+
+        const m2 = new SelectManager();
+        m2.project(manager.exists());
+        expect(m2.toSql()).toBe(`SELECT EXISTS (${manager.toSql()})`);
+      });
+
+      it('can be aliased', () => {
+        const table = new Table('users');
+        const manager = new SelectManager();
+        manager.project(new SqlLiteral('*'));
+        const m2 = new SelectManager();
+        m2.project(manager.exists().as('foo'));
+        expect(m2.toSql()).toBe(`SELECT EXISTS (${manager.toSql()}) AS foo`);
+      });
+    });
+
+    describe('union', () => {
+      it('should union two managers', () => {
+        const table = new Table('users');
+        const m1 = new SelectManager(table);
+        m1.project(Arel.star());
+        m1.where(table.column('age').lt(18));
+
+        const m2 = new SelectManager(table);
+        m2.project(Arel.star());
+        m2.where(table.column('age').gt(99));
+
+        expect(m1.union(m2).toSql()).toBe(
+          `( SELECT * FROM "users" WHERE "users"."age" < 18 UNION SELECT * FROM "users" WHERE "users"."age" > 99 )`
+        );
+      });
+
+      it('should union all', () => {
+        const table = new Table('users');
+        const m1 = new SelectManager(table);
+        m1.project(Arel.star());
+        m1.where(table.column('age').lt(18));
+
+        const m2 = new SelectManager(table);
+        m2.project(Arel.star());
+        m2.where(table.column('age').gt(99));
+
+        expect(m1.union('all', m2).toSql()).toBe(
+          `( SELECT * FROM "users" WHERE "users"."age" < 18 UNION ALL SELECT * FROM "users" WHERE "users"."age" > 99 )`
+        );
+      });
+    });
+
+    describe('intersect', () => {
+      it('should intersect two managers', () => {
+        const table = new Table('users');
+        const m1 = new SelectManager(table);
+        m1.project(Arel.star());
+        m1.where(table.column('age').gt(18));
+
+        const m2 = new SelectManager(table);
+        m2.project(Arel.star());
+        m2.where(table.column('age').lt(99));
+
+        expect(m1.intersect(m2).toSql()).toBe(
+          `( SELECT * FROM "users" WHERE "users"."age" > 18 INTERSECT SELECT * FROM "users" WHERE "users"."age" < 99 )`
+        );
+      });
+    });
+
+    describe('except', () => {
+      it('should except two managers', () => {
+        const table = new Table('users');
+        const m1 = new SelectManager(table);
+        m1.project(Arel.star());
+        m1.where(table.column('age').between(18, 60));
+
+        const m2 = new SelectManager(table);
+        m2.project(Arel.star());
+        m2.where(table.column('age').between(40, 99));
+
+        expect(m1.except(m2).toSql()).toBe(
+          `( SELECT * FROM "users" WHERE "users"."age" BETWEEN 18 AND 60 EXCEPT SELECT * FROM "users" WHERE "users"."age" BETWEEN 40 AND 99 )`
+        );
+      });
+    });
+
+    describe('with', () => {
+      it('should support basic WITH', () => {
+        const users = new Table('users');
+        const usersTop = new Table('users_top');
+        const comments = new Table('comments');
+        const top = users
+          .project(users.column('id'))
+          .where(users.column('karma').gt(100));
+        const usersAs = new As(usersTop, top);
+        const selectManager = comments
+          .project(Arel.star())
+          .with(usersAs)
+          .where(
+            comments
+              .column('author_id')
+              .in(usersTop.project(usersTop.column('id')))
+          );
+        expect(selectManager.toSql()).toBe(
+          `WITH "users_top" AS (SELECT "users"."id" FROM "users" WHERE "users"."karma" > 100) SELECT * FROM "comments" WHERE "comments"."author_id" IN (SELECT "users_top"."id" FROM "users_top")`
+        );
+      });
+
+      it('should support WITH RECURSIVE', () => {
+        const comments = new Table('comments');
+        const commentsId = comments.column('id');
+        const commentsParentId = comments.column('parent_id');
+        const replies = new Table('replies');
+        const repliesId = replies.column('id');
+
+        const recursiveTerm = new SelectManager();
+        recursiveTerm
+          .from(comments)
+          .project(commentsId, commentsParentId)
+          .where(commentsId.eq(42));
+
+        const nonRecursiveTerm = new SelectManager();
+        nonRecursiveTerm
+          .from(comments)
+          .project(commentsId, commentsParentId)
+          .join(replies)
+          .on(commentsParentId.eq(repliesId));
+
+        const union = recursiveTerm.union(nonRecursiveTerm);
+        const asStatement = new As(replies, union);
+        const manager = new SelectManager();
+        manager
+          .with('recursive', asStatement)
+          .from(replies)
+          .project(Arel.star());
+        expect(manager.toSql()).toBe(
+          `WITH RECURSIVE "replies" AS ( SELECT "comments"."id", "comments"."parent_id" FROM "comments" WHERE "comments"."id" = 42 UNION SELECT "comments"."id", "comments"."parent_id" FROM "comments" INNER JOIN "replies" ON "comments"."parent_id" = "replies"."id" ) SELECT * FROM "replies"`
+        );
+      });
+    });
+
+    describe('ast', () => {
+      it('should return the ast', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        expect(mgr.ast).not.toBeNull();
+      });
+
+      it('should allow orders to work when the ast is grepped', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        mgr.project(Arel.sql('*'));
+        mgr.from(table);
+        mgr.order.push(new Ascending(Arel.sql('foo')));
+        // mgr.ast.grep(OuterJoin);
+        // expect(mgr.toSql()).toBe(`SELECT * FROM "users" ORDER BY foo ASC`)
+      });
+    });
+
+    describe('taken', () => {
+      it('should return limit', () => {
+        const manager = new SelectManager();
+        manager.take(10);
+        expect(manager.taken).toBe(10);
+      });
+    });
+
+    describe('lock', () => {
+      it('adds a lock node', () => {
+        const table = new Table('users');
+        const mgr = table.from();
+        expect(mgr.lock().toSql()).toBe(`SELECT FROM "users" FOR UPDATE`);
+      });
+    });
+
+    describe('orders', () => {
+      it('returns order clauses', () => {
+        const table = new Table('users');
+        const manager = new SelectManager();
+        const order = table.column('id');
+        manager.order(table.column('id'));
+        expect(manager.orders).toEqual([order]);
+      });
+    });
+
+    describe('order', () => {
+      it('generates order clauses', () => {
+        const table = new Table('users');
+        const manager = new SelectManager();
+        manager.project(new SqlLiteral('*'));
+        manager.from(table);
+        manager.order(table.column('id'));
+        expect(manager.toSql()).toBe(
+          `SELECT * FROM "users" ORDER BY "users"."id"`
+        );
+      });
+
+      it('takes *args', () => {
+        const table = new Table('users');
+        const manager = new SelectManager();
+        manager.project(new SqlLiteral('*'));
+        manager.from(table);
+        manager.order(table.column('id'), table.column('name'));
+        expect(manager.toSql()).toBe(
+          `SELECT * FROM "users" ORDER BY "users"."id", "users"."name"`
+        );
+      });
+
+      it('chains', () => {
+        const table = new Table('users');
+        const manager = new SelectManager();
+        expect(manager.order(table.column('id'))).toBe(manager);
+      });
+
+      it('has order attributes', () => {
+        const table = new Table('users');
+        const manager = new SelectManager();
+        manager.project(new SqlLiteral('*'));
+        manager.from(table);
+        manager.order(table.column('id').desc());
+        expect(manager.toSql()).toBe(
+          `SELECT * FROM "users" ORDER BY "users"."id" DESC`
+        );
+      });
+    });
+
+    describe('on', () => {
+      it('takes two params', () => {
+        const left = new Table('users');
+        const right = left.alias();
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+
+        manager.from(left);
+        manager.join(right).on(predicate, predicate);
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" INNER JOIN "users" "users_2" ON "users"."id" = "users_2"."id" AND "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('takes three params', () => {
+        const left = new Table('users');
+        const right = left.alias;
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+        manager.from(left);
+        manager
+          .join(right)
+          .on(
+            predicate,
+            predicate,
+            left.column('name').eq(right.column('name'))
+          );
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" INNER JOIN "users" "users_2" ON "users"."id" = "users_2"."id" AND "users"."id" = "users_2"."id" AND "users"."name" = "users_2"."name"`
+        );
+      });
+    });
+
+    it('should hand back froms', () => {
+      const relation = new SelectManager();
+      expect(relation.froms()).toEqual([]);
+    });
+
+    it('should create and nodes', () => {
+      const relation = new SelectManager();
+      const children = ['foo', 'bar', 'baz'];
+      const clause = relation.createAnd(children);
+      expect(clause).toBeInstanceOf(And);
+      expect(clause.children).toBe(children);
+    });
+
+    it('should create insert managers', () => {
+      const relation = new SelectManager();
+      const insert = relation.createInsert();
+      expect(insert).toBeInstanceOf(InsertManager);
+    });
+
+    it('should create join nodes', () => {
+      const relation = new SelectManager();
+      const join = relation.createJoin('foo', 'bar');
+      expect(join).toBeInstanceOf(InnerJoin);
+      expect(join.left).toBe('foo');
+      expect(join.right).toBe('bar');
+    });
+
+    it('should create join nodes with a full outer join klass', () => {
+      const relation = new SelectManager();
+      const join = relation.createJoin('foo', 'bar', FullOuterJoin);
+      expect(join).toBeInstanceOf(FullOuterJoin);
+      expect(join.left).toBe('foo');
+      expect(join.right).toBe('bar');
+    });
+
+    it('should create join nodes with a outer join klass', () => {
+      const relation = new SelectManager();
+      const join = relation.createJoin('foo', 'bar', OuterJoin);
+      expect(join).toBeInstanceOf(OuterJoin);
+      expect(join.left).toBe('left');
+      expect(join.right).toBe('right');
+    });
+
+    it('should create join nodes with a right outer join klass', () => {
+      const relation = new SelectManager();
+      const join = relation.createJoin('foo', 'bar', RightOuterJoin);
+      expect(join).toBeInstanceOf(RightOuterJoin);
+      expect(join.left).toBe('foo');
+      expect(join.right).toBe('bar');
+    });
+
+    describe('join', () => {
+      it('responds to join', () => {
+        const left = new Table('users');
+        const right = left.alias();
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+
+        manager.from(left);
+        manager.join(right).on(predicate);
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" INNER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('takes a class', () => {
+        const left = new Table('users');
+        const right = left.alias();
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+
+        manager.from(left);
+        manager.join(right, OuterJoin).on(predicate);
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" LEFT OUTER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('takes the full outer join class', () => {
+        const left = new Table('users');
+        const right = left.alias();
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+        manager.from(left);
+        manager.join(right, FullOuterJoin).on(predicate);
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" FULL OUTER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('takes the right outer join class', () => {
+        const left = new Table('users');
+        const right = left.alias();
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+
+        manager.from(left);
+        manager.from(right, RightOuterJoin).on(predicate);
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" RIGHT OUTER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('noops on null', () => {
+        const manager = new SelectManager();
+        expect(manager.join(null)).toBe(manager);
+      });
+
+      // it('raises EmptyJoinError on empty', () => {
+      //   const left = new Table('users');
+      //   const manager = new SelectManager();
+      //   manager.from(left);
+      //   expect()
+      // })
+    });
+
+    describe('outer join', () => {
+      it('responds to join', () => {
+        const left = new Table('users');
+        const right = left.alias();
+        const predicate = left.column('id').eq(right.column('id'));
+        const manager = new SelectManager();
+
+        manager.from(left);
+        manager.outerJoin(right).on(predicate);
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" LEFT OUTER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('noops on null', () => {
+        const manager = new SelectManager();
+        expect(manager.outerJoin(null)).toBe(manager);
+      });
+    });
+
+    describe('joins', () => {
+      it('returns inner join sql', () => {
+        const table = new Table('users');
+        const aliaz = table.alias();
+        const manager = new SelectManager();
+        manager.from(
+          new InnerJoin(aliaz, table.column('id').eq(aliaz.column('id')))
+        );
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" INNER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('returns outer join sql', () => {
+        const table = new Table('users');
+        const aliaz = table.alias();
+        const manager = new SelectManager();
+        manager.from(
+          new OuterJoin(aliaz, table.column('id').eq(aliaz.column('id')))
+        );
+        expect(manager.toSql()).toBe(
+          `SELECT FROM "users" LEFT OUTER JOIN "users" "users_2" ON "users"."id" = "users_2"."id"`
+        );
+      });
+
+      it('can have a non-table alias as relation name', () => {});
+
+      it('joins itself', () => {});
+
+      it('returns string join sql', () => {});
+    });
+
+    describe('group', () => {});
+
+    describe('window definition', () => {});
+
+    describe('delete', () => {});
+
+    describe('whereSql', () => {});
+
+    describe('update', () => {});
 
     describe('project', () => {
       it('takes sql literals', () => {

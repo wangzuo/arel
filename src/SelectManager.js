@@ -1,8 +1,10 @@
+import capitalize from 'lodash/capitalize';
 import compact from 'lodash/compact';
 import isString from 'lodash/isString';
 import isEmpty from 'lodash/isEmpty';
 import last from 'lodash/last';
 import extend from 'lodash/extend';
+import flatten from 'lodash/flatten';
 import TreeManager from './TreeManager';
 
 class Row {
@@ -50,7 +52,7 @@ export default class SelectManager extends TreeManager {
       const { Offset } = require('./nodes');
       this.ast.offset = new Offset(amount);
     } else {
-      this.ast.Offset = null;
+      this.ast.offset = null;
     }
     return this;
   }
@@ -226,7 +228,15 @@ export default class SelectManager extends TreeManager {
     return new SqlLiteral(viz.accpet(this.ctx, new SQLString())).value;
   }
 
-  union(operation, other = null) {}
+  union(operation, other = null) {
+    if (other) {
+      const NodeClass = require('./nodes')[`Union${capitalize(operation)}`];
+      return new NodeClass(this.ast, other.ast);
+    }
+
+    const { Union } = require('./nodes');
+    return new Union(this.ast, operation.ast);
+  }
 
   intersect(other) {
     const { Intersect } = require('./nodes');
@@ -242,7 +252,13 @@ export default class SelectManager extends TreeManager {
     return this.except(other);
   }
 
-  with() {
+  with(...subqueries) {
+    const NodeClass = isString(subqueries[0])
+      ? require('./nodes')[`With${capitalize(subqueries.shift())}`]
+      : require('./nodes').With;
+
+    this.ast.with = new NodeClass(flatten(subqueries));
+
     return this;
   }
 

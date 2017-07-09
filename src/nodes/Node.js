@@ -1,9 +1,5 @@
 import extend from 'lodash/extend';
-// import Not from './Not';
-// import And from './And';
-// import Table from '../Table';
-// import SQLString from '../collectors/SQLString';
-// import Or from './Or';
+import SQLString from '../collectors/SQLString';
 
 export default class Node {
   constructor() {
@@ -20,12 +16,15 @@ export default class Node {
   }
 
   and(right) {
+    const { And } = require('../nodes');
     return new And([this, right]);
   }
 
-  toSql(engine = Table.engine) {
+  toSql(engine) {
+    const { Table } = require('../Arel');
+    engine = engine || Table.engine;
     const collector = engine.connection.visitor.accept(this, new SQLString());
-    return collector.value();
+    return collector.value;
   }
 
   each(block) {}

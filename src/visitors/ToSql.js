@@ -93,7 +93,15 @@ export default class ToSql extends Reduce {
     return collector;
   }
 
-  visitExists(o, collector) {}
+  visitExists(o, collector) {
+    collector.append('EXISTS (');
+    collector = this.visit(o.expressions, collector).append(')');
+    if (o.alias) {
+      collector.append(' AS ');
+      return this.visit(o.alias, collector);
+    }
+    return collector;
+  }
 
   visitSelectStatement(o, collector) {
     if (o.with) {
@@ -459,5 +467,65 @@ export default class ToSql extends Reduce {
   visitOn(o, collector) {
     collector.append('ON ');
     return this.visit(o.expr, collector);
+  }
+
+  visitUnion(o, collector) {
+    collector.append('( ');
+    return this.infixValue(o, collector, ' UNION ').append(' )');
+  }
+
+  infixValue(o, collector, value) {
+    collector = this.visit(o.left, collector);
+    collector.append(value);
+    return this.visit(o.right, collector);
+  }
+
+  visitLessThan(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' < ');
+    return this.visit(o.right, collector);
+  }
+
+  visitGreaterThan(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' > ');
+    return this.visit(o.right, collector);
+  }
+
+  visitUnionAll(o, collector) {
+    collector.append('( ');
+    return this.infixValue(o, collector, ' UNION ALL ').append(' )');
+  }
+
+  visitIntersect(o, collector) {
+    collector.append('( ');
+    return this.infixValue(o, collector, ' INTERSECT ').append(' )');
+  }
+
+  visitExcept(o, collector) {
+    collector.append('( ');
+    return this.infixValue(o, collector, ' EXCEPT ').append(' )');
+  }
+
+  visitBetween(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' BETWEEN ');
+    return this.visit(o.right, collector);
+  }
+
+  visitWith(o, collector) {
+    collector.append('WITH ');
+    return this.injectJoin(o.children, collector, COMMA);
+  }
+
+  visitAs(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' AS ');
+    return this.visit(o.right, collector);
+  }
+
+  visitWithRecursive(o, collector) {
+    collector.append('WITH RECURSIVE ');
+    return this.injectJoin(o.children, collector, COMMA);
   }
 }

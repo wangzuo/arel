@@ -4,6 +4,7 @@ import BindParam from './nodes/BindParam';
 import Casted, { Quoted } from './nodes/Casted';
 import Unary from './nodes/Unary';
 import Binary from './nodes/Binary';
+import Function from './nodes/Function';
 
 export const buildQuoted = (other, attribute = null) => {
   const { Attribute } = require('./attributes');
@@ -90,3 +91,17 @@ export class InnerJoin extends Join {}
 export class FullOuterJoin extends Join {}
 export class OuterJoin extends Join {}
 export class RightOuterJoin extends Join {}
+
+export class Sum extends Function {}
+export class Exists extends Function {}
+export class Max extends Function {}
+export class Min extends Function {}
+export class Avg extends Function {}
+
+export class With extends Unary {
+  get children() {
+    return this.expr;
+  }
+}
+
+export class WithRecursive extends With {}

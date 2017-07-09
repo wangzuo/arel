@@ -25,9 +25,22 @@ const Predications = {
     return this.groupingAll('eq', this.quotedArray(others));
   },
 
-  between(other) {},
+  // TODO
+  between(begin, end) {
+    const { Between } = require('./nodes');
+    const left = this.quotedNode(begin);
+    const right = this.quotedNode(end);
+    return new Between(this, left.and(right));
+  },
 
-  in(other) {},
+  in(other) {
+    const { In } = require('./nodes');
+    const { SelectManager } = require('./Arel');
+
+    if (other instanceof SelectManager) {
+      return new In(this, other.ast);
+    } // todo
+  },
 
   inAny(others) {},
   inAll(others) {},
@@ -37,6 +50,39 @@ const Predications = {
   notInAny(others) {},
   notInAll(others) {},
   matches(other, escape = null, caseSensitive = false) {},
+  matchesRegexp(other, caseSensitive = true) {},
+  matchesAny(others, escape = null, caseSensitive = false) {},
+  matchesAll(others, escape = null, caseSensitive = false) {},
+  doesNotMatch(other, escape = null, caseSensitive = false) {},
+  doesNotMatchRegexp(other, caseSensitive = true) {},
+  doesNotMatchAny(others, escape = null) {},
+  doesNotMatchAll(others, escape = null) {},
+  gteq(right) {},
+  gteqAny(others) {},
+  gteqAll(others) {},
+
+  gt(right) {
+    const { GreaterThan } = require('./nodes');
+    return new GreaterThan(this, this.quotedNode(right));
+  },
+
+  gtAny(others) {},
+  gtAll(others) {},
+
+  lt(right) {
+    const { LessThan } = require('./nodes');
+    return new LessThan(this, this.quotedNode(right));
+  },
+
+  ltAny(others) {},
+  ltAll(others) {},
+
+  lteq(right) {},
+  lteqAny(others) {},
+  lteqAll(others) {},
+
+  when(right) {},
+  concat(other) {},
 
   // private
 

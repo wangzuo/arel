@@ -11,6 +11,8 @@ export default class TreeManager {
     extend(this, FactoryMethods);
   }
 
+  clone() {}
+
   toDot() {
     const { default: Dot } = require('./visitors/Dot');
     const collector = new Dot().accept()(this.ast, new PlainString());
@@ -31,9 +33,10 @@ export default class TreeManager {
 
   where(expr) {
     if (expr instanceof TreeManager) {
-      expr = expr.last;
+      expr = expr.ast;
     }
     this.ctx.wheres.push(expr);
+
     return this;
   }
 }
