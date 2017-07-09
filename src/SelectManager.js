@@ -185,10 +185,18 @@ export default class SelectManager extends TreeManager {
     } else {
       this.ctx.setQuantifier = null;
     }
+
     return this;
   }
 
   distinctOn(value) {
+    if (value) {
+      const { DistinctOn } = require('./nodes');
+      this.ctx.setQuantifier = new DistinctOn(value);
+    } else {
+      this.ctx.setQuantifier = null;
+    }
+
     return this;
   }
 

@@ -1,5 +1,4 @@
-import Equality from '../Equality';
-import { NotEqual } from '../Binary';
+import { Equality, NotEqual } from '../../nodes';
 
 describe('Binary', () => {
   describe('#hash', () => {

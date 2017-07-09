@@ -1,7 +1,9 @@
+import { Attribute } from './attributes';
 import Node from './nodes/Node';
 import BindParam from './nodes/BindParam';
 import Casted, { Quoted } from './nodes/Casted';
-import { Attribute } from './attributes';
+import Unary from './nodes/Unary';
+import Binary from './nodes/Binary';
 
 export const buildQuoted = (other, attribute = null) => {
   const { Attribute } = require('./attributes');
@@ -26,11 +28,6 @@ export Node from './nodes/Node';
 export SelectStatement from './nodes/SelectStatement';
 export InsertStatement from './nodes/InsertStatement';
 export SqlLiteral from './nodes/SqlLiteral';
-export StringJoin from './nodes/StringJoin';
-export InnerJoin from './nodes/InnerJoin';
-export FullOuterJoin from './nodes/FullOuterJoin';
-export OuterJoin from './nodes/OuterJoin';
-export RightOuterJoin from './nodes/RightOuterJoin';
 export Window, { NamedWindow } from './nodes/Window';
 export Grouping from './nodes/Grouping';
 export And from './nodes/And';
@@ -46,36 +43,46 @@ export In from './nodes/In';
 export UnqualifiedColumn from './nodes/UnqualifiedColumn';
 export JoinSource from './nodes/JoinSource';
 export TableAlias from './nodes/TableAlias';
-export {
-  Bin,
-  Cube,
-  DistinctOn,
-  Group,
-  GroupingElement,
-  GroupingSet,
-  Limit,
-  Lock,
-  Not,
-  Offset,
-  On,
-  Ordering,
-  RollUp,
-  Top
-} from './nodes/Unary';
-export {
-  As,
-  Assignment,
-  Between,
-  GreaterThan,
-  GreaterThanOrEqual,
-  Join,
-  LessThan,
-  LessThanOrEqual,
-  NotEqual,
-  NotIn,
-  Or,
-  Union,
-  UnionAll,
-  Intersect,
-  Except
-} from './nodes/Binary';
+export Distinct from './nodes/terminal';
+
+export class Bin extends Unary {}
+export class Cube extends Unary {}
+export class DistinctOn extends Unary {}
+export class Group extends Unary {}
+export class GroupingElement extends Unary {}
+export class GroupingSet extends Unary {}
+export class Limit extends Unary {}
+export class Lock extends Unary {}
+export class Not extends Unary {}
+export class Offset extends Unary {}
+export class On extends Unary {}
+export class Ordering extends Unary {}
+export class RollUp extends Unary {}
+export class Top extends Unary {}
+
+export class As extends Binary {}
+export class Assignment extends Binary {}
+export class Between extends Binary {}
+export class GreaterThan extends Binary {}
+export class GreaterThanOrEqual extends Binary {}
+export class Join extends Binary {}
+export class LessThan extends Binary {}
+export class LessThanOrEqual extends Binary {}
+export class NotEqual extends Binary {}
+export class NotIn extends Binary {}
+export class Or extends Binary {}
+export class Union extends Binary {}
+export class UnionAll extends Binary {}
+export class Intersect extends Binary {}
+export class Except extends Binary {}
+
+export class StringJoin extends Join {
+  constructor(left, right = null) {
+    super(left, right);
+  }
+}
+
+export class InnerJoin extends Join {}
+export class FullOuterJoin extends Join {}
+export class OuterJoin extends Join {}
+export class RightOuterJoin extends Join {}
