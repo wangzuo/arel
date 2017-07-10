@@ -528,4 +528,26 @@ export default class ToSql extends Reduce {
     collector.append('WITH RECURSIVE ');
     return this.injectJoin(o.children, collector, COMMA);
   }
+
+  visitLock(o, collector) {
+    return this.visit(o.expr, collector);
+  }
+
+  visitOuterJoin(o, collector) {
+    collector.append('LEFT OUTER JOIN ');
+    collector = this.visit(o.left, collector);
+    collector.append(' ');
+    return this.visit(o.right, collector);
+  }
+
+  visitStringJoin(o, collector) {
+    return this.visit(o.left, collector);
+  }
+
+  visitRightOuterJoin(o, collector) {
+    collector.append('RIGHT OUTER JOIN ');
+    collector = this.visit(o.left, collector);
+    collector.append(SPACE);
+    return this.visit(o.right, collector);
+  }
 }

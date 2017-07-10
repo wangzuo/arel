@@ -44,6 +44,7 @@ export In from './nodes/In';
 export UnqualifiedColumn from './nodes/UnqualifiedColumn';
 export JoinSource from './nodes/JoinSource';
 export TableAlias from './nodes/TableAlias';
+export Count from './nodes/Count';
 
 export class Distinct extends Node {
   hash() {}
@@ -105,3 +106,5 @@ export class With extends Unary {
 }
 
 export class WithRecursive extends With {}
+
+export class Ascending {}

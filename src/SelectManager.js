@@ -32,7 +32,7 @@ export default class SelectManager extends TreeManager {
   }
 
   get limit() {
-    this.ast.limit && this.ast.limit.expr;
+    return this.ast.limit && this.ast.limit.expr;
   }
 
   get taken() {
@@ -120,7 +120,7 @@ export default class SelectManager extends TreeManager {
     }
 
     if (table instanceof Join) {
-      this.ctx.source.right.append(table);
+      this.ctx.source.right.push(table);
     } else {
       this.ctx.source.left = table;
     }
@@ -205,9 +205,7 @@ export default class SelectManager extends TreeManager {
   order(...expr) {
     const { SqlLiteral } = require('./nodes');
     this.ast.orders = this.ast.orders.concat(
-      expr.map(
-        x => (x instanceof SqlLiteral ? x : new SqlLiteral(x.toString()))
-      )
+      expr.map(x => (isString(x) ? new SqlLiteral(x) : x))
     );
 
     return this;
