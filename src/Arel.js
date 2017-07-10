@@ -7,6 +7,7 @@ export { Node } from './nodes';
 export SelectManager from './SelectManager';
 export DeleteManager from './DeleteManager';
 export UpdateManager from './UpdateManager';
+export InsertManager from './InsertManager';
 export * as nodes from './nodes';
 export * as attributes from './attributes';
 export * as visitors from './visitors';

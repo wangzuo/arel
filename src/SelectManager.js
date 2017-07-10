@@ -128,8 +128,8 @@ export default class SelectManager extends TreeManager {
     return this;
   }
 
-  froms() {
-    return compact(this.ast.cores.map(x => x.from()));
+  get froms() {
+    return compact(this.ast.cores.map(x => x.from));
   }
 
   join(relation, klass) {
@@ -149,8 +149,8 @@ export default class SelectManager extends TreeManager {
   }
 
   outerJoin(relation) {
-    const { outerJoin } = require('./nodes');
-    return this.join(relation, outerJoin);
+    const { OuterJoin } = require('./nodes');
+    return this.join(relation, OuterJoin);
   }
 
   having(expr) {

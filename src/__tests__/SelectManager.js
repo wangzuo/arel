@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import * as Arel from '../Arel';
 
-const { Table, SelectManager } = Arel;
+const { Table, SelectManager, InsertManager } = Arel;
 const {
   As,
   Ascending,
@@ -389,7 +389,7 @@ describe('SelectManager', () => {
       const mgr = table.from();
       mgr.project(Arel.sql('*'));
       mgr.from(table);
-      mgr.order.push(new Ascending(Arel.sql('foo')));
+      // mgr.order.push(new Ascending(Arel.sql('foo')));
       // mgr.ast.grep(OuterJoin);
       // expect(mgr.toSql()).toBe(`SELECT * FROM "users" ORDER BY foo ASC`)
     });
@@ -479,7 +479,7 @@ describe('SelectManager', () => {
 
     it('takes three params', () => {
       const left = new Table('users');
-      const right = left.alias;
+      const right = left.alias();
       const predicate = left.column('id').eq(right.column('id'));
       const manager = new SelectManager();
       manager.from(left);
@@ -494,7 +494,7 @@ describe('SelectManager', () => {
 
   it('should hand back froms', () => {
     const relation = new SelectManager();
-    expect(relation.froms()).toEqual([]);
+    expect(relation.froms).toEqual([]);
   });
 
   it('should create and nodes', () => {
@@ -531,8 +531,8 @@ describe('SelectManager', () => {
     const relation = new SelectManager();
     const join = relation.createJoin('foo', 'bar', OuterJoin);
     expect(join).toBeInstanceOf(OuterJoin);
-    expect(join.left).toBe('left');
-    expect(join.right).toBe('right');
+    expect(join.left).toBe('foo');
+    expect(join.right).toBe('bar');
   });
 
   it('should create join nodes with a right outer join klass', () => {

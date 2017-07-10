@@ -107,4 +107,18 @@ export class With extends Unary {
 
 export class WithRecursive extends With {}
 
-export class Ascending {}
+export class Ascending extends Ordering {
+  reverse() {}
+
+  get direction() {
+    return 'asc';
+  }
+}
+
+export class Descending extends Ordering {
+  reverse() {}
+
+  get direction() {
+    return 'desc';
+  }
+}

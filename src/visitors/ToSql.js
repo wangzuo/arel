@@ -550,4 +550,19 @@ export default class ToSql extends Reduce {
     collector.append(SPACE);
     return this.visit(o.right, collector);
   }
+
+  visitFullOuterJoin(o, collector) {
+    collector.append('FULL OUTER JOIN ');
+    collector = this.visit(o.left, collector);
+    collector.append(SPACE);
+    return this.visit(o.right, collector);
+  }
+
+  visitAscending(o, collector) {
+    return this.visit(o.expr, collector).append(' ASC');
+  }
+
+  visitDescending(o, collector) {
+    return this.visit(o.expr, collector).append(' DESC');
+  }
 }
