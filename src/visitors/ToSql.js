@@ -565,4 +565,74 @@ export default class ToSql extends Reduce {
   visitDescending(o, collector) {
     return this.visit(o.expr, collector).append(' DESC');
   }
+
+  visitNamedWindow(o, collector) {
+    collector.append(this.quoteColumnName(o.name));
+    collector.append(' AS ');
+    return this.visitWindow(o, collector);
+  }
+
+  visitWindow(o, collector) {
+    collector.append('(');
+
+    if (!isEmpty(o.partitions)) {
+      collector.append('PARTITION BY ');
+      collector = this.injectJoin(o.partitions, collector, ', ');
+    }
+
+    if (!isEmpty(o.orders)) {
+      if (!isEmpty(o.partitions)) {
+        collector.append(SPACE);
+      }
+      collector.append('ORDER BY ');
+      collector = this.injectJoin(o.orders, collector, ', ');
+    }
+
+    if (o.framing) {
+      if (!isEmpty(o.partitions) || !isEmpty(o.orders)) {
+        collector.append(SPACE);
+      }
+      collector = this.visit(o.framing, collector);
+    }
+
+    return collector.append(')');
+  }
+
+  visitRows(o, collector) {
+    if (o.expr) {
+      collector.append('ROWS ');
+      return this.visit(o.expr, collector);
+    }
+
+    return this.collector.append('ROWS');
+  }
+
+  visitPreceding(o, collector) {
+    if (o.expr) {
+      return this.visit(o.expr, collector).append(' PRECEDING');
+    }
+
+    return collector.append('UNBOUNDED PRECEDING');
+  }
+
+  visitRange(o, collector) {
+    if (o.expr) {
+      collector.append('RANGE ');
+      return this.visit(o.expr, collector);
+    }
+
+    return collector.append('RANGE');
+  }
+
+  visitFollowing(o, collector) {
+    if (o.expr) {
+      return this.visit(o.expr, collector).append(' FOLLOWING');
+    }
+
+    return collector.append('UNBOUNDED FOLLOWING');
+  }
+
+  visitCurrentRow(o, collector) {
+    return collector.append('CURRENT ROW');
+  }
 }

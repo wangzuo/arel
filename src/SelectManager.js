@@ -160,8 +160,9 @@ export default class SelectManager extends TreeManager {
 
   window(name) {
     const { NamedWindow } = require('./nodes');
-    this.ctx.windows.push(window);
-    return window;
+    const win = new NamedWindow(name);
+    this.ctx.windows.push(win);
+    return win;
   }
 
   project(...projections) {

@@ -15,7 +15,11 @@ const {
   InnerJoin,
   FullOuterJoin,
   RightOuterJoin,
-  buildQuoted
+  buildQuoted,
+  Preceding,
+  Following,
+  CurrentRow,
+  Between
 } = Arel.nodes;
 
 describe('SelectManager', () => {
@@ -724,7 +728,202 @@ describe('SelectManager', () => {
     });
   });
 
-  describe('window definition', () => {});
+  describe('window definition', () => {
+    it('can be empty', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window');
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS ()`
+      );
+    });
+
+    it('takes an order', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').order(table.column('foo').asc());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ORDER BY "users"."foo" ASC)`
+      );
+    });
+
+    it('takes an order with multiple columns', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager
+        .window('a_window')
+        .order(table.column('foo').asc(), table.column('bar').desc());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ORDER BY "users"."foo" ASC, "users"."bar" DESC)`
+      );
+    });
+
+    it('takes a partition', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').partition(table.column('bar'));
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (PARTITION BY "users"."bar")`
+      );
+    });
+
+    it('takes a partition and an order', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager
+        .window('a_window')
+        .partition(table.column('foo'))
+        .order(table.column('foo').asc());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (PARTITION BY "users"."foo" ORDER BY "users"."foo" ASC)`
+      );
+    });
+
+    it('takes a partition with multiple columns', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager
+        .window('a_window')
+        .partition(table.column('bar'), table.column('baz'));
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (PARTITION BY "users"."bar", "users"."baz")`
+      );
+    });
+
+    it('takes a rows frame, unbounded preceding', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').rows(new Preceding());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ROWS UNBOUNDED PRECEDING)`
+      );
+    });
+
+    it('takes a rows frame, bounded preceding', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').rows(new Preceding(5));
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ROWS 5 PRECEDING)`
+      );
+    });
+
+    it('takes a rows frame, unbounded following', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').rows(new Following());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ROWS UNBOUNDED FOLLOWING)`
+      );
+    });
+
+    it('takes a rows frame, bounded following', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').rows(new Following(5));
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ROWS 5 FOLLOWING)`
+      );
+    });
+
+    it('takes a rows frame, current row', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').rows(new CurrentRow());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (ROWS CURRENT ROW)`
+      );
+    });
+
+    it('takes a rows frame, between two delimiters', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      const win = manager.window('a_window');
+      win.frame(
+        new Between(win.rows, new And([new Preceding(), new CurrentRow()]))
+      );
+      // todo
+      // expect(manager.toSql()).toBe(
+      //   `SELECT FROM "users" WINDOW "a_window" AS (ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`
+      // );
+    });
+
+    it('takes a range frame, unbounded preceding', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').range(new Preceding());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (RANGE UNBOUNDED PRECEDING)`
+      );
+    });
+
+    it('takes a range frame, bounded preceding', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').range(new Preceding(5));
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (RANGE 5 PRECEDING)`
+      );
+    });
+
+    it('takes a range frame, unbounded following', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').range(new Following());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (RANGE UNBOUNDED FOLLOWING)`
+      );
+    });
+
+    it('takes a range frame, bounded following', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').range(new Following(5));
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (RANGE 5 FOLLOWING)`
+      );
+    });
+
+    it('takes a range frame, current row', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.window('a_window').range(new CurrentRow());
+      expect(manager.toSql()).toBe(
+        `SELECT FROM "users" WINDOW "a_window" AS (RANGE CURRENT ROW)`
+      );
+    });
+
+    it('takes a range frame, between two delimiters', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      const win = manager.window('a_window');
+      win.frame(
+        new Between(win.range, new And([new Preceding(), new CurrentRow()]))
+      );
+      // todo
+      // expect(manager.toSql()).toBe(
+      //   `SELECT FROM "users" WINDOW "a_window" AS (RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`
+      // );
+    });
+  });
 
   describe('delete', () => {});
 

@@ -1,7 +1,8 @@
+import isString from 'lodash/isString';
 import Node from './Node';
 import Unary from './Unary';
 
-class Window extends Node {
+export default class Window extends Node {
   constructor() {
     super();
     this.orders = [];
@@ -10,10 +11,20 @@ class Window extends Node {
   }
 
   order(...expr) {
+    const { SqlLiteral } = require('../nodes');
+    this.orders = this.orders.concat(
+      expr.map(x => (isString(x) ? new SqlLiteral(x) : x))
+    );
+
     return this;
   }
 
   partition(...expr) {
+    const { SqlLiteral } = require('../nodes');
+    this.partitions = this.partitions.concat(
+      expr.map(x => (isString(x) ? new SqlLiteral(x) : x))
+    );
+
     return this;
   }
 
@@ -25,17 +36,23 @@ class Window extends Node {
     if (this.framing) {
       return new Rows(expr);
     }
-    return this.frame(new Row(expr));
+
+    return this.frame(new Rows(expr));
   }
 
-  range() {}
+  range(expr = null) {
+    if (this.framing) {
+      return new Range(expr);
+    }
+    return this.frame(new Range(expr));
+  }
 
   hash() {}
 
   eql() {}
 }
 
-class NamedWindow extends Window {
+export class NamedWindow extends Window {
   constructor(name) {
     super();
     this.name = name;
@@ -58,23 +75,20 @@ class Range extends Unary {
   }
 }
 
-class CurrentRow extends Node {
+export class CurrentRow extends Node {
   get hash() {}
 
   eql() {}
 }
 
-class Preceding extends Unary {
+export class Preceding extends Unary {
   constructor(expr = null) {
     super(expr);
   }
 }
 
-class Following extends Unary {
+export class Following extends Unary {
   constructor(expr = null) {
     super(expr);
   }
 }
-
-export default Window;
-export { NamedWindow };

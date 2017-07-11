@@ -29,7 +29,12 @@ export Node from './nodes/Node';
 export SelectStatement from './nodes/SelectStatement';
 export InsertStatement from './nodes/InsertStatement';
 export SqlLiteral from './nodes/SqlLiteral';
-export Window, { NamedWindow } from './nodes/Window';
+export Window, {
+  NamedWindow,
+  Preceding,
+  Following,
+  CurrentRow
+} from './nodes/Window';
 export Grouping from './nodes/Grouping';
 export And from './nodes/And';
 export NamedFunction from './nodes/NamedFunction';
