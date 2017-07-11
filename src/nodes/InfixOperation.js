@@ -1,7 +1,7 @@
 import extend from 'lodash/extend';
-import Node from './Node';
+import Binary from './Binary';
 
-class InfixOperation extends Node {
+export default class InfixOperation extends Binary {
   constructor(operator, left, right) {
     super(left, right);
 
@@ -21,14 +21,62 @@ class InfixOperation extends Node {
   }
 }
 
-export class Multiplication extends InfixOperation {}
-export class Division extends InfixOperation {}
-export class Addition extends InfixOperation {}
-export class Subtraction extends InfixOperation {}
-export class Concat extends InfixOperation {}
-export class BitwiseAnd extends InfixOperation {}
-export class BitwiseOr extends InfixOperation {}
-export class BitwiseXor extends InfixOperation {}
-export class BitwiseShiftLeft extends InfixOperation {}
-export class BitwiseShiftRight extends InfixOperation {}
-export default InfixOperation;
+export class Multiplication extends InfixOperation {
+  constructor(left, right) {
+    super('*', left, right);
+  }
+}
+
+export class Division extends InfixOperation {
+  constructor(left, right) {
+    super('/', left, right);
+  }
+}
+
+export class Addition extends InfixOperation {
+  constructor(left, right) {
+    super('+', left, right);
+  }
+}
+
+export class Subtraction extends InfixOperation {
+  constructor(left, right) {
+    super('-', left, right);
+  }
+}
+
+export class Concat extends InfixOperation {
+  constructor(left, right) {
+    super('||', left, right);
+  }
+}
+
+export class BitwiseAnd extends InfixOperation {
+  constructor(left, right) {
+    super('&', left, right);
+  }
+}
+
+export class BitwiseOr extends InfixOperation {
+  constructor(left, right) {
+    super('|', left, right);
+  }
+}
+
+export class BitwiseXor extends InfixOperation {
+  constructor(left, right) {
+    super('^', left, right);
+  }
+}
+
+export class BitwiseShiftLeft extends InfixOperation {
+  constructor(left, right) {
+    super('<<', left, right);
+  }
+}
+
+export class BitwiseShiftRight extends InfixOperation {
+  constructor(left, right) {
+    super('>>', left, right);
+  }
+}

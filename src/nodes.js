@@ -50,6 +50,18 @@ export UnqualifiedColumn from './nodes/UnqualifiedColumn';
 export JoinSource from './nodes/JoinSource';
 export TableAlias from './nodes/TableAlias';
 export Count from './nodes/Count';
+export InfixOperation, {
+  Multiplication,
+  Division,
+  Addition,
+  Subtraction,
+  Concat,
+  BitwiseAnd,
+  BitwiseOr,
+  BitwiseXor,
+  BitwiseShiftLeft,
+  BitwiseShiftRight
+} from './nodes/InfixOperation';
 
 export class Distinct extends Node {
   hash() {}

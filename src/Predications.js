@@ -82,7 +82,11 @@ const Predications = {
   lteqAll(others) {},
 
   when(right) {},
-  concat(other) {},
+
+  concat(other) {
+    const { Concat } = require('./nodes');
+    return new Concat(this, other);
+  },
 
   // private
 
