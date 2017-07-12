@@ -6,6 +6,7 @@ import last from 'lodash/last';
 import extend from 'lodash/extend';
 import flatten from 'lodash/flatten';
 import TreeManager from './TreeManager';
+import SQLString from './collectors/SQLString';
 
 class Row {
   constructor(data) {
@@ -220,11 +221,12 @@ export default class SelectManager extends TreeManager {
     if (isEmpty(this.ctx.wheres)) return;
 
     const { Table } = require('./Arel');
-    const { WhereSql } = require('./visitors/WhereSql');
+    const { SqlLiteral } = require('./nodes');
+    const { default: WhereSql } = require('./visitors/WhereSql');
     engine = engine || Table.engine;
 
     const viz = new WhereSql(engine.connection.visitor, engine.connection);
-    return new SqlLiteral(viz.accpet(this.ctx, new SQLString())).value;
+    return new SqlLiteral(viz.accept(this.ctx, new SQLString()).value);
   }
 
   union(operation, other = null) {

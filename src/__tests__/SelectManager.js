@@ -925,9 +925,48 @@ describe('SelectManager', () => {
     });
   });
 
-  describe('delete', () => {});
+  describe('delete', () => {
+    it('copies from', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      expect(manager.compileDelete().toSql()).toBe(`DELETE FROM "users"`);
+    });
 
-  describe('whereSql', () => {});
+    it('copies where', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.where(table.column('id').eq(10));
+      expect(manager.compileDelete().toSql()).toBe(
+        `DELETE FROM "users" WHERE "users"."id" = 10`
+      );
+    });
+  });
+
+  describe('whereSql', () => {
+    it('gives me back the where sql', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.where(table.column('id').eq(10));
+      expect(manager.whereSql().value).toBe(`WHERE "users"."id" = 10`);
+    });
+
+    it('joins wheres with AND', () => {
+      const table = new Table('users');
+      const manager = new SelectManager();
+      manager.from(table);
+      manager.where(table.column('id').eq(10));
+      manager.where(table.column('id').eq(11));
+      expect(manager.whereSql().value).toBe(
+        `WHERE "users"."id" = 10 AND "users"."id" = 11`
+      );
+    });
+
+    // it('handles database specific statements', () => {});
+    // it('returns nil when there are no wheres', () => {});
+  });
 
   describe('update', () => {});
 
