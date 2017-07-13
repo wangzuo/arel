@@ -20,11 +20,15 @@ query.toSql(); // => SELECT * FROM "users"
 
 ### More examples
 ``` javascript
-users.where(users.column('name').eq('amy'))
-// => SELECT * FROM users WHERE users.name = 'amy'
-
 users.project(users.column('id'))
-// => SELECT users.id FROM users
+// => SELECT "users"."id" FROM "users"
+
+users.where(users.column('name').eq('amy'))
+// => SELECT FROM "users" WHERE "users"."name" = 'amy'
+
+const photos = new Arel.Table('photos');
+users.join(photos).on(users.column('id').eq(photos.column('user_id')))
+// => SELECT FROM "users" INNER JOIN "photos" ON "users"."id" = "photos"."user_id"
 ```
 
 ### License
