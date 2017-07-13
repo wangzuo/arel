@@ -29,6 +29,7 @@ export default class MySQL extends ToSql {
     return this.visit(o.expr, collector);
   }
 
+  // TODO
   // visitSelectStatement(o, collector) {
   //   const { Limit } = require('../nodes');
   //   if (o.offset && !o.limit) {

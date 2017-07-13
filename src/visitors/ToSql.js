@@ -635,4 +635,12 @@ export default class ToSql extends Reduce {
   visitCurrentRow(o, collector) {
     return collector.append('CURRENT ROW');
   }
+
+  visitDistinct(o, collector) {
+    return collector.append(DISTINCT);
+  }
+
+  visitDistinctOn(o, collector) {
+    throw new Error('DISTINCT ON not implemented for this db');
+  }
 }

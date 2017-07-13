@@ -49,12 +49,35 @@ const Predications = {
   notIn(other) {},
   notInAny(others) {},
   notInAll(others) {},
-  matches(other, escape = null, caseSensitive = false) {},
-  matchesRegexp(other, caseSensitive = true) {},
+
+  matches(other, escape = null, caseSensitive = false) {
+    const { Matches } = require('./nodes');
+    return new Matches(this, this.quotedNode(other), escape, caseSensitive);
+  },
+
+  matchesRegexp(other, caseSensitive = true) {
+    const { Regexp } = require('./nodes');
+    return new Regexp(this, this.quotedNode(other), caseSensitive);
+  },
+
   matchesAny(others, escape = null, caseSensitive = false) {},
   matchesAll(others, escape = null, caseSensitive = false) {},
-  doesNotMatch(other, escape = null, caseSensitive = false) {},
-  doesNotMatchRegexp(other, caseSensitive = true) {},
+
+  doesNotMatch(other, escape = null, caseSensitive = false) {
+    const { DoesNotMatch } = require('./nodes');
+    return new DoesNotMatch(
+      this,
+      this.quotedNode(other),
+      escape,
+      caseSensitive
+    );
+  },
+
+  doesNotMatchRegexp(other, caseSensitive = true) {
+    const { NotRegexp } = require('./nodes');
+    return new NotRegexp(this, this.quotedNode(other), caseSensitive);
+  },
+
   doesNotMatchAny(others, escape = null) {},
   doesNotMatchAll(others, escape = null) {},
   gteq(right) {},

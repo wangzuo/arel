@@ -28,6 +28,7 @@ export const buildQuoted = (other, attribute = null) => {
 export Node from './nodes/Node';
 export SelectStatement from './nodes/SelectStatement';
 export InsertStatement from './nodes/InsertStatement';
+export SelectCore from './nodes/SelectCore';
 export SqlLiteral from './nodes/SqlLiteral';
 export Window, {
   NamedWindow,
@@ -62,6 +63,8 @@ export InfixOperation, {
   BitwiseShiftLeft,
   BitwiseShiftRight
 } from './nodes/InfixOperation';
+export Matches, { DoesNotMatch } from './nodes/Matches';
+export Regexp, { NotRegexp } from './nodes/Regexp';
 
 export class Distinct extends Node {
   hash() {}
