@@ -65,6 +65,8 @@ export InfixOperation, {
 } from './nodes/InfixOperation';
 export Matches, { DoesNotMatch } from './nodes/Matches';
 export Regexp, { NotRegexp } from './nodes/Regexp';
+export True from './nodes/True';
+export False from './nodes/False';
 
 export class Distinct extends Node {
   hash() {}
