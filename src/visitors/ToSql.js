@@ -643,4 +643,10 @@ export default class ToSql extends Reduce {
   visitDistinctOn(o, collector) {
     throw new Error('DISTINCT ON not implemented for this db');
   }
+
+  visitLessThanOrEqual(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' <= ');
+    return this.visit(o.right, collector);
+  }
 }
