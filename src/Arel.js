@@ -11,3 +11,4 @@ export InsertManager from './InsertManager';
 export * as nodes from './nodes';
 export * as attributes from './attributes';
 export * as visitors from './visitors';
+export * as collectors from './collectors';
