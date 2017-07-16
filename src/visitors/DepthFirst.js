@@ -2,8 +2,8 @@ import Visitor from './Visitor';
 
 export default class DepthFirst extends Visitor {
   constructor(block = null) {
-    this.block = block || (() => {});
     super();
+    this.block = block || (() => {});
   }
 
   // private
