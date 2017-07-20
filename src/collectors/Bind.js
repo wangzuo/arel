@@ -20,13 +20,9 @@ export default class Bind {
   }
 
   substituteBinds(bvs) {
-    this.parts = this.parts.map(val => {
-      if (val instanceof BindParam) {
-        return bvs.shift();
-      } else {
-        return val;
-      }
-    });
+    this.parts = this.parts.map(
+      val => (val instanceof BindParam ? bvs.shift() : val)
+    );
 
     return this.parts;
   }
