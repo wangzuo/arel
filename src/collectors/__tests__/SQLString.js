@@ -1,13 +1,11 @@
 import * as Arel from '../../Arel';
-import { Base } from '../../FakeRecord';
 import ToSql from '../../visitors/ToSql';
 import SQLString from '../SQLString';
 
 const { Table, SelectManager } = Arel;
 const { BindParam } = Arel.nodes;
 
-const _conn = new Base();
-const _visitor = new ToSql(_conn.connection);
+const _visitor = new ToSql(Table.engine.connection);
 
 function collect(node) {
   return _visitor.accept(node, new SQLString());
