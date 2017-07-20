@@ -15,23 +15,23 @@ export default class Bind {
     return this;
   }
 
-  value() {
+  get value() {
     return this.parts;
   }
 
   substituteBinds(bvs) {
-    // const bvs = bvs.dup();
-    this.parts.map(val => {
-      if (val == BindParam) {
-        return bvs.shift;
+    this.parts = this.parts.map(val => {
+      if (val instanceof BindParam) {
+        return bvs.shift();
       } else {
         return val;
       }
     });
+
     return this.parts;
   }
 
   compile(bvs) {
-    this.substituteBinds(bvs).join();
+    return this.substituteBinds(bvs).join('');
   }
 }
