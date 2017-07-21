@@ -26,7 +26,7 @@ const Expressions = {
 
   extract(field) {
     const { Extract } = require('./nodes');
-    return new Extract([this]);
+    return new Extract([this], field);
   }
 };
 

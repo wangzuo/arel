@@ -207,6 +207,11 @@ export default class ToSql extends Reduce {
     return this.literal(o, collector);
   }
 
+  visitExtract(o, collector) {
+    collector.append(`EXTRACT(${o.field.toUpperCase()} FROM `);
+    return this.visit(o.expr, collector).append(')');
+  }
+
   visitCount(o, collector) {
     return this.aggregate('COUNT', o, collector);
   }

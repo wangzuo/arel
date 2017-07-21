@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import * as Arel from '../../Arel';
 import { Sum } from '../../nodes';
 
@@ -11,11 +12,18 @@ describe('Sum', () => {
     });
   });
 
-  describe('equality', () => {
-    it('is equal with equal ivars', () => {});
+  // todo
+  // describe('equality', () => {
+  //   it('is equal with equal ivars', () => {
+  //     const array = [new Sum('foo'), new Sum('foo')];
+  //     expect(_.uniq(array).length).toBe(1);
+  //   });
 
-    it('is not equal with different ivars', () => {});
-  });
+  //   it('is not equal with different ivars', () => {
+  //     const array = [new Sum('foo'), new Sum('foo!')];
+  //     expect(_.uniq(array).length).toBe(2);
+  //   });
+  // });
 
   describe('order', () => {
     it('should order the sum', () => {
