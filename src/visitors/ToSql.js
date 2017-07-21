@@ -211,6 +211,10 @@ export default class ToSql extends Reduce {
     return this.aggregate('COUNT', o, collector);
   }
 
+  visitSum(o, collector) {
+    return this.aggregate('SUM', o, collector);
+  }
+
   visitOffset(o, collector) {
     collector.append('OFFSET ');
     return this.visit(o.expr, collector);
