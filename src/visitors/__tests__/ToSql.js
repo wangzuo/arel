@@ -11,7 +11,7 @@ const {
   BindParam,
   Values,
   Limit,
-  NamedFunction,
+  NamedFunc,
   Sum,
   Max,
   Grouping,
@@ -72,17 +72,17 @@ describe('ToSql', () => {
   // });
 
   // it('should visit named functions', () => {
-  //   const func = new NamedFunction('omg', [Arel.star]);
+  //   const func = new NamedFunc('omg', [Arel.star]);
   //   expect(compile(func)).toBe('omg(*)');
   // });
 
   // it('should chain predications on named functions', () => {
-  //   const func = new NamedFunction('omg', [Arel.star]);
+  //   const func = new NamedFunc('omg', [Arel.star]);
   //   expect(compile(func.eq(2))).toBe('omg(*) = 2');
   // });
 
   // it('should handle nil with named functions', () => {
-  //   const func = new NamedFunction('omg', [Arel.star]);
+  //   const func = new NamedFunc('omg', [Arel.star]);
   //   expect(compile(func.eq(null))).toBe('omg(8) IS NULL');
   // });
 
@@ -117,7 +117,7 @@ describe('ToSql', () => {
   // });
 
   // it('works with lists', () => {
-  //   const func = new NamedFunction('omg', [Arel.star, Arel.star]);
+  //   const func = new NamedFunc('omg', [Arel.star, Arel.star]);
   //   expect(compile(func)).toBe('omg(*, *');
   // });
 

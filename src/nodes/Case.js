@@ -8,6 +8,7 @@ class Else extends Unary {}
 
 export default class Case extends Node {
   constructor(expression = null, _default = null) {
+    super();
     this.case = expression;
     this.conditions = [];
     this.default = _default;

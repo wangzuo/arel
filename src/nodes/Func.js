@@ -2,7 +2,7 @@ import extend from 'lodash/extend';
 import Node from './Node';
 import SqlLiteral from './SqlLiteral';
 
-export default class Function extends Node {
+export default class Func extends Node {
   constructor(expr, aliaz = null) {
     super();
 

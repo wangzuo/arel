@@ -41,8 +41,8 @@ const FactoryMethods = {
   },
 
   lower(column) {
-    const { NamedFunction, buildQuoted } = require('./nodes');
-    return new NamedFunction('LOWER', [buildQuoted(column)]);
+    const { NamedFunc, buildQuoted } = require('./nodes');
+    return new NamedFunc('LOWER', [buildQuoted(column)]);
   }
 };
 

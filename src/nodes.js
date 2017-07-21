@@ -4,7 +4,7 @@ import BindParam from './nodes/BindParam';
 import Casted, { Quoted } from './nodes/Casted';
 import Unary from './nodes/Unary';
 import Binary from './nodes/Binary';
-import Function from './nodes/Function';
+import Func from './nodes/Func';
 
 export const buildQuoted = (other, attribute = null) => {
   const { Attribute } = require('./attributes');
@@ -38,7 +38,7 @@ export Window, {
 } from './nodes/Window';
 export Grouping from './nodes/Grouping';
 export And from './nodes/And';
-export NamedFunction from './nodes/NamedFunction';
+export NamedFunc from './nodes/NamedFunc';
 export Equality from './nodes/Equality';
 export DeleteStatement from './nodes/DeleteStatement';
 export UpdateStatement from './nodes/UpdateStatement';
@@ -115,11 +115,11 @@ export class FullOuterJoin extends Join {}
 export class OuterJoin extends Join {}
 export class RightOuterJoin extends Join {}
 
-export class Sum extends Function {}
-export class Exists extends Function {}
-export class Max extends Function {}
-export class Min extends Function {}
-export class Avg extends Function {}
+export class Sum extends Func {}
+export class Exists extends Func {}
+export class Max extends Func {}
+export class Min extends Func {}
+export class Avg extends Func {}
 
 export class With extends Unary {
   get children() {

@@ -396,7 +396,7 @@ export default class ToSql extends Reduce {
     return this.injectJoin(o.children, collector, ' AND ');
   }
 
-  visitFunction(o, collector) {
+  visitFunc(o, collector) {
     collector.append(o.name);
     collector.append('(');
     if (o.distinct) collector.append('DISTINCT ');

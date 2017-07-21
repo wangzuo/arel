@@ -4,7 +4,7 @@
   "description": "arel",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "build": "rm -rf lib && webpack",
     "pretest": "npm run build",
     "prepublish": "npm run test"
@@ -28,5 +28,8 @@
     "jest": "^20.0.4",
     "lodash": "^4.17.4",
     "webpack": "^3.1.0"
+  },
+  "jest": {
+    "collectCoverageFrom": ["src/**/*.js"]
   }
 }
