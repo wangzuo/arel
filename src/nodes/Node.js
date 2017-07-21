@@ -3,7 +3,7 @@ import SQLString from '../collectors/SQLString';
 
 export default class Node {
   constructor() {
-    const FactoryMethods = require('../FactoryMethods').default;
+    const { default: FactoryMethods } = require('../FactoryMethods');
     extend(this, FactoryMethods);
   }
 

@@ -1,12 +1,13 @@
 import extend from 'lodash/extend';
-import Expressions from '../Expressions';
-import Predications from '../Predications';
-import AliasPredication from '../AliasPredication';
-import OrderPredications from '../OrderPredications';
 
 export default class SqlLiteral {
   constructor(value) {
     this.value = value;
+
+    const { default: Expressions } = require('../Expressions');
+    const { default: Predications } = require('../Predications');
+    const { default: AliasPredication } = require('../AliasPredication');
+    const { default: OrderPredications } = require('../OrderPredications');
 
     extend(this, Expressions);
     extend(this, Predications);

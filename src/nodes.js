@@ -88,7 +88,7 @@ export class Ordering extends Unary {}
 export class RollUp extends Unary {}
 export class Top extends Unary {}
 
-export class As extends Binary {}
+export As from './nodes/As';
 export class Assignment extends Binary {}
 export class Between extends Binary {}
 export class GreaterThan extends Binary {}

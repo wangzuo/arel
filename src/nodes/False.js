@@ -1,3 +1,6 @@
 import Node from './Node';
 
-export default class False {}
+export default class False extends Node {
+  hash() {}
+  eql() {}
+}
