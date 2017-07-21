@@ -18,7 +18,8 @@ const {
   Min,
   Avg,
   Count,
-  Equality
+  Equality,
+  NotEqual
 } = Arel.nodes;
 
 let conn = null;
@@ -81,111 +82,206 @@ describe('ToSql', () => {
     expect(compile(func.eq(2))).toBe('omg(*) = 2');
   });
 
-  it('should handle nil with named functions', () => {
+  it('should handle null with named functions', () => {
     const func = new NamedFunc('omg', [Arel.star()]);
     expect(compile(func.eq(null))).toBe('omg(*) IS NULL');
   });
 
-  // it('should visit built-in functions', () => {
-  //   expect(compile(new Count([Arel.star]))).toBe('COUNT(*)');
-  //   expect(compile(new Sum([Arel.star]))).toBe('SUM(*)');
-  //   expect(compile(new Max([Arel.star]))).toBe('MAX(*)');
-  //   expect(compile(new Min([Arel.star]))).toBe('MIN(*)');
-  //   expect(compile(new Avg([Arel.star]))).toBe('AVG(*)');
-  // });
+  it('should visit built-in functions', () => {
+    expect(compile(new Arel.nodes.Count([Arel.star()]))).toBe('COUNT(*)');
+    expect(compile(new Arel.nodes.Sum([Arel.star()]))).toBe('SUM(*)');
+    expect(compile(new Arel.nodes.Max([Arel.star()]))).toBe('MAX(*)');
+    expect(compile(new Arel.nodes.Min([Arel.star()]))).toBe('MIN(*)');
+    expect(compile(new Arel.nodes.Avg([Arel.star()]))).toBe('AVG(*)');
+  });
 
-  // it('should visit built-in functions operating on distinct values', () => {
-  //   let func = new Count([Arel.star]);
-  //   func.distinct = true;
-  //   expect(compile(func)).toBe('COUNT(DISTINCT *)');
+  it('should visit built-in functions operating on distinct values', () => {
+    const f1 = new Count([Arel.star()]);
+    f1.distinct = true;
+    expect(compile(f1)).toBe('COUNT(DISTINCT *)');
 
-  //   func = new Sum([Arel.star]);
-  //   func.distinct = true;
-  //   expect(compile(func)).toBe('SUM(DISTINCT *)');
+    const f2 = new Sum([Arel.star()]);
+    f2.distinct = true;
+    expect(compile(f2)).toBe('SUM(DISTINCT *)');
 
-  //   func = new Max([Arel.star]);
-  //   func.distinct = true;
-  //   expect(compile(func)).toBe('MAX(DISTINCT *)');
+    const f3 = new Max([Arel.star()]);
+    f3.distinct = true;
+    expect(compile(f3)).toBe('MAX(DISTINCT *)');
 
-  //   func = new Min([Arel.star]);
-  //   func.distinct = true;
-  //   expect(compile(func)).toBe('MIN(DISTINCT *)');
+    const f4 = new Min([Arel.star()]);
+    f4.distinct = true;
+    expect(compile(f4)).toBe('MIN(DISTINCT *)');
 
-  //   func = new Avg([Arel.star]);
-  //   func.distinct = true;
-  //   expect(compile(func)).toBe('AVG(DISTINCT *)');
-  // });
+    const f5 = new Avg([Arel.star()]);
+    f5.distinct = true;
+    expect(compile(f5)).toBe('AVG(DISTINCT *)');
+  });
 
-  // it('works with lists', () => {
-  //   const func = new NamedFunc('omg', [Arel.star, Arel.star]);
-  //   expect(compile(func)).toBe('omg(*, *');
-  // });
+  it('works with lists', () => {
+    const func = new NamedFunc('omg', [Arel.star(), Arel.star()]);
+    expect(compile(func)).toBe('omg(*, *)');
+  });
 
-  // describe('Equality', () => {
-  //   it('should escape strings', () => {
-  //     const test = new Table('users').column('name').eq('Aaron Patterson');
-  //     expect(compile(test)).toBe(`"users"."name" = 'Aaron Patterson'`);
-  //   });
+  describe('Equality', () => {
+    it('should escape strings', () => {
+      const test = new Table('users').column('name').eq('Aaron Patterson');
+      expect(compile(test)).toBe(`"users"."name" = 'Aaron Patterson'`);
+    });
 
-  //   it('should handle false', () => {
-  //     const table = new Table('users');
-  //     const val = buildQuoted(false, table.column('active'));
-  //     const sql = compile(new Equality(val, val));
-  //     expect(sql).toBe(`'f' = 'f'`);
-  //   });
+    it('should handle false', () => {
+      const table = new Table('users');
+      const val = Arel.nodes.buildQuoted(false, table.column('active'));
+      const sql = compile(new Equality(val, val));
+      expect(sql).toBe(`'f' = 'f'`);
+    });
 
-  //   it('should handle nil', () => {
-  //     const sql = new Equality(table.column('name'), null);
-  //     expect(sql).toBe(`"users"."name" IS NULL`);
-  //   });
-  // });
+    it('should handle null', () => {
+      const sql = compile(new Equality(table.column('name'), null));
+      expect(sql).toBe(`"users"."name" IS NULL`);
+    });
+  });
 
-  // describe('Grouping', () => {
-  //   it('wraps nested groupings in brackets only once', () => {
-  //     const sql = compile(new Grouping(new Grouping(buildQuoted('foo'))));
-  //     expect(sql).toBe(`"('foo')"`);
-  //   });
-  // });
+  describe('Grouping', () => {
+    it('wraps nested groupings in brackets only once', () => {
+      const sql = compile(new Grouping(new Grouping(buildQuoted('foo'))));
+      expect(sql).toBe(`('foo')`);
+    });
+  });
 
-  // describe('NotEqual', () => {
-  //   it('should handle false', () => {
-  //     const val = buildQuoted(null, table.column('active'));
-  //     const sql = compile(new NotEqual(table.column('active'), val));
-  //     expect(sql).toBe(`"users"."name" != 'f'`);
-  //   });
+  describe('NotEqual', () => {
+    it('should handle false', () => {
+      const val = buildQuoted(false, table.column('active'));
+      const sql = compile(new NotEqual(table.column('active'), val));
+      expect(sql).toBe(`"users"."active" != 'f'`);
+    });
 
-  //   it('should handle null', () => {
-  //     const val = buildQuoted(null, table.column('active'));
-  //     const sql = compile(new NotEqual(table.column('name'), val));
-  //     expect(sql).toBe('"users"."name" IS NOT NULL');
-  //   });
-  // });
+    it('should handle null', () => {
+      const val = buildQuoted(null, table.column('active'));
+      const sql = compile(new NotEqual(table.column('name'), val));
+      expect(sql).toBe('"users"."name" IS NOT NULL');
+    });
+  });
 
+  // todo
   // it('should visit string subclass', () => {});
 
   // it('should visit_Class', () => {});
 
-  // it('should escape LIMIT', () => {
-  //   const sc = new SelectStatement();
-  //   sc.limit = new Limit(buildQuoted('omg'));
-  //   expect(compile(sc)).toBe(`LIMIT 'omg'`);
-  // });
+  it('should escape LIMIT', () => {
+    const sc = new SelectStatement();
+    sc.limit = new Limit(buildQuoted('omg'));
+    expect(compile(sc)).toBe(`SELECT LIMIT 'omg'`);
+  });
 
-  // it('should contain a single space before ORDER BY', () => {
-  //   const table = new Table('users');
-  //   const test = table.order(table.column('name'));
-  //   expect(compile(test)).toBe(`"users" ORDER BY`);
-  // });
+  it('should contain a single space before ORDER BY', () => {
+    const table = new Table('users');
+    const test = table.order(table.column('name'));
+    expect(compile(test)).toBe(`"users" ORDER BY`);
+  });
 
-  // it('should quote LIMIT without column type coercion', () => {
-  //   const table = new Table('users');
-  //   const sc = table.where(table.column('name').eq(0)).take(1).ast;
-  //   expect(compile(sc)).toBe(`WHERE "users"."name" = 0 LIMIT 1`);
-  // });
+  it('should quote LIMIT without column type coercion', () => {
+    const table = new Table('users');
+    const sc = table.where(table.column('name').eq(0)).take(1).ast;
+    expect(compile(sc)).toBe(`WHERE "users"."name" = 0 LIMIT 1`);
+  });
 
   // it('should visitDateTime', () => {});
 
   // it('should visitFloat', () => {});
 
-  // it('should apply Not to the whole expression', () => {});
+  it('should apply Not to the whole expression', () => {
+    const table = new Arel.nodes.Table('users');
+    const attr = table.column('id');
+    const node = new Arel.nodes.And([attr.eq(10), attr.eq(11)]);
+    expect(compile(new Arel.nodes.Not(node))).toBe(
+      `NOT ("users"."id" = 10 AND "users"."id" = 11)`
+    );
+  });
+
+  it('should visitAs', () => {
+    const as = new Arel.nodes.As(Arel.sql('foo'), Arel.sql('bar'));
+    expect(compile(as)).toBe('foo AS bar');
+  });
+
+  it('should visitBignum', () => {});
+
+  it('should visitHash', () => {});
+
+  it('should visitSet', () => {});
+
+  it('should visitBigDecimal', () => {});
+
+  it('should visitDate', () => {});
+
+  it('should visitNilClass', () => {});
+
+  it('unsupported input should raise UnsupportedVisitError', () => {});
+
+  it('should visitSelectManager, which is a subquery', () => {
+    const mgr = new Arel.Table('foo').project('bar');
+    expet(compile(mgr)).toBe(`(SELECT bar FROM "foo")`);
+  });
+
+  it('should visitAnd', () => {
+    const table = new Arel.Table('users');
+    const attr = table.column('id');
+    const node = new Arel.nodes.And([attr.eq(10), attr.eq(11)]);
+    expect(compile(node)).toBe(`"user"."id" = 10 AND "users"."id" = 11`);
+  });
+
+  it('should visitOr', () => {
+    const node = new Arel.nodes.Or(attr.eq(10), attr.eq(11));
+    expect(compile(node)).toBe(`"users"."id" = 10 OR "users"."id" = 11`);
+  });
+
+  it('should visitAssignment', () => {
+    const table = new Arel.Table('users');
+    const column = table.column('id');
+    const node = new Arel.nodes.Assignment(
+      new Arel.nodes.UnqualifedColumn(column),
+      new Arel.nodes.UnqualifedColumn(column)
+    );
+
+    expect(compile(node)).toBe(`"id" = "id"`);
+  });
+
+  it('should visitAttributesTime', () => {});
+
+  it('should visitTrueClass', () => {});
+
+  describe('Matches', () => {
+    it('should know how to visit', () => {});
+    it('can handle ESCAPE', () => {});
+    it('can handle subqueries', () => {});
+  });
+
+  describe('DoesNotMatch', () => {
+    it('should know how to visit', () => {});
+    it('can handle ESCAPE', () => {});
+    it('can handle subqueries', () => {});
+  });
+
+  describe('Ordering', () => {
+    it('should know how to visit', () => {
+      const table = new Arel.nodes.Table('users');
+      const node = table.column('id').desc();
+      expect(compile(node)).toBe(`"users"."id" DESC`);
+    });
+  });
+
+  describe('In', () => {});
+  describe('InFixOperation', () => {});
+
+  describe('UnaryOperation', () => {});
+  describe('NotIn', () => {});
+
+  describe('Constants', () => {});
+
+  describe('TableAlias', () => {});
+
+  descrbie('distinct on', () => {});
+
+  describe('Regexp', () => {});
+  describe('NotRegexp', () => {});
+  describe('Case', () => {});
 });

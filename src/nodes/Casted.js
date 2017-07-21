@@ -22,4 +22,12 @@ export default class Casted extends Node {
     this.val = val;
     this.attribute = attribute;
   }
+
+  isNull() {
+    return isNull(this.val);
+  }
+
+  hash() {}
+
+  eql() {}
 }

@@ -28,5 +28,6 @@ export default class Node {
     return collector.value;
   }
 
+  // todo
   each(block) {}
 }

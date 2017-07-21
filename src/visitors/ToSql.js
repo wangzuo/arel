@@ -235,6 +235,18 @@ export default class ToSql extends Reduce {
     return this.aggregate('SUM', o, collector);
   }
 
+  visitMax(o, collector) {
+    return this.aggregate('MAX', o, collector);
+  }
+
+  visitMin(o, collector) {
+    return this.aggregate('MIN', o, collector);
+  }
+
+  visitAvg(o, collector) {
+    return this.aggregate('AVG', o, collector);
+  }
+
   visitOffset(o, collector) {
     collector.append('OFFSET ');
     return this.visit(o.expr, collector);
@@ -393,7 +405,7 @@ export default class ToSql extends Reduce {
     collector = this.visit(o.left, collector);
 
     // todo
-    if (right.isNull && right.isNull()) {
+    if (isNull(right) || (right.isNull && right.isNull())) {
       collector.append(' IS NULL');
     } else {
       collector.append(' = ');
@@ -401,6 +413,19 @@ export default class ToSql extends Reduce {
     }
 
     return collector;
+  }
+
+  visitNotEqual(o, collector) {
+    const right = o.right;
+    collector = this.visit(o.left, collector);
+
+    // todo
+    if (isNull(right) || (right.isNull && right.isNull())) {
+      return collector.append(' IS NOT NULL');
+    }
+
+    collector.append(' != ');
+    return this.visit(right, collector);
   }
 
   visitAttribute(o, collector) {
