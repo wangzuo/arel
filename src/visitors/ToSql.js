@@ -7,14 +7,14 @@ import isNull from 'lodash/isNull';
 import Reduce from './Reduce';
 import SQLString from '../collectors/SQLString';
 
-const WHERE = ' WHERE ';
-const SPACE = ' ';
-const COMMA = ', ';
-const GROUP_BY = ' GROUP BY ';
-const ORDER_BY = ' ORDER BY ';
-const WINDOW = ' WINDOW ';
-const AND = ' AND ';
-const DISTINCT = 'DISTINCT';
+export const WHERE = ' WHERE ';
+export const SPACE = ' ';
+export const COMMA = ', ';
+export const GROUP_BY = ' GROUP BY ';
+export const ORDER_BY = ' ORDER BY ';
+export const WINDOW = ' WINDOW ';
+export const AND = ' AND ';
+export const DISTINCT = 'DISTINCT';
 
 export default class ToSql extends Reduce {
   constructor(connection) {
@@ -103,6 +103,14 @@ export default class ToSql extends Reduce {
     return collector;
   }
 
+  visitCasted(o, collector) {
+    return collector.append(this.quoted(o.val, o.attribute).toString());
+  }
+
+  visitQuoted(o, collector) {
+    return collector.append(this.quoted(o.expr, null).toString());
+  }
+
   visitSelectStatement(o, collector) {
     if (o.with) {
       collector = this.visit(o.with, collector);
@@ -163,30 +171,6 @@ export default class ToSql extends Reduce {
         }
       });
     }
-  }
-
-  quote(value) {
-    const { SqlLiteral } = require('../nodes');
-    if (value instanceof SqlLiteral) return value;
-    return this.connection.quote(value);
-  }
-
-  quoteTableName(name) {
-    const { SqlLiteral } = require('../nodes');
-    if (name instanceof SqlLiteral) return name;
-    return this.connection.quoteTableName(name);
-  }
-
-  quoteColumnName(name) {
-    const { SqlLiteral } = require('../nodes');
-    if (name instanceof SqlLiteral) return name;
-    return this.connection.quoteColumnName(name);
-  }
-
-  maybeVisit(thing, collector) {
-    if (!thing) return collector;
-    collector.append(' ');
-    return this.visit(thing, collector);
   }
 
   visitSelectOptions(o, collector) {
@@ -259,33 +243,6 @@ export default class ToSql extends Reduce {
 
   visitUnqualifiedColumn(o, collector) {
     collector.append(this.quoteColumnName(o.name));
-    return collector;
-  }
-
-  injectJoin(list, collector, joinStr) {
-    const len = list.length - 1;
-    return list.map((x, i) => [x, i]).reduce((c, [x, i]) => {
-      if (i === len) {
-        return this.visit(x, c);
-      } else {
-        return this.visit(x, c).append(joinStr);
-      }
-    }, collector);
-  }
-
-  aggregate(name, o, collector) {
-    collector.append(`${name}(`);
-    if (o.distinct) {
-      collector.append('DISTINCT ');
-    }
-
-    collector = this.injectJoin(o.expressions, collector, ', ').append(')');
-
-    if (o.alias) {
-      collector.append(' AS ');
-      return this.visit(o.alias, collector);
-    }
-
     return collector;
   }
 
@@ -363,20 +320,12 @@ export default class ToSql extends Reduce {
     return collector;
   }
 
-  visitQuoted(o, collector) {
-    return collector.append(this.quoted(o.expr, null).toString());
-  }
-
   quoted(o, a) {
     if (a && a.ableToTypeCast()) {
       return this.quote(a.typeCastForDatabase(o));
     } else {
       return this.quote(o);
     }
-  }
-
-  visitArray(o, collector) {
-    return this.injectJoin(o, collector, ', ');
   }
 
   visitJoinSource(o, collector) {
@@ -426,10 +375,6 @@ export default class ToSql extends Reduce {
     );
   }
 
-  visitCasted(o, collector) {
-    return collector.append(this.quoted(o.val, o.attribute).toString());
-  }
-
   visitTableAlias(o, collector) {
     collector = this.visit(o.relation, collector);
     collector.append(' ');
@@ -472,12 +417,6 @@ export default class ToSql extends Reduce {
   visitUnion(o, collector) {
     collector.append('( ');
     return this.infixValue(o, collector, ' UNION ').append(' )');
-  }
-
-  infixValue(o, collector, value) {
-    collector = this.visit(o.left, collector);
-    collector.append(value);
-    return this.visit(o.right, collector);
   }
 
   visitLessThan(o, collector) {
@@ -648,5 +587,66 @@ export default class ToSql extends Reduce {
     collector = this.visit(o.left, collector);
     collector.append(' <= ');
     return this.visit(o.right, collector);
+  }
+
+  visitArray(o, collector) {
+    return this.injectJoin(o, collector, ', ');
+  }
+
+  quote(value) {
+    const { SqlLiteral } = require('../nodes');
+    if (value instanceof SqlLiteral) return value;
+    return this.connection.quote(value);
+  }
+
+  quoteTableName(name) {
+    const { SqlLiteral } = require('../nodes');
+    if (name instanceof SqlLiteral) return name;
+    return this.connection.quoteTableName(name);
+  }
+
+  quoteColumnName(name) {
+    const { SqlLiteral } = require('../nodes');
+    if (name instanceof SqlLiteral) return name;
+    return this.connection.quoteColumnName(name);
+  }
+
+  maybeVisit(thing, collector) {
+    if (!thing) return collector;
+    collector.append(' ');
+    return this.visit(thing, collector);
+  }
+
+  injectJoin(list, collector, joinStr) {
+    const len = list.length - 1;
+    return list.map((x, i) => [x, i]).reduce((c, [x, i]) => {
+      if (i === len) {
+        return this.visit(x, c);
+      } else {
+        return this.visit(x, c).append(joinStr);
+      }
+    }, collector);
+  }
+
+  infixValue(o, collector, value) {
+    collector = this.visit(o.left, collector);
+    collector.append(value);
+    return this.visit(o.right, collector);
+  }
+
+  aggregate(name, o, collector) {
+    collector.append(`${name}(`);
+    if (o.distinct) {
+      collector.append('DISTINCT ');
+    }
+
+    collector = this.injectJoin(o.expressions, collector, ', ').append(')');
+
+    if (o.alias) {
+      collector.append(' AS ');
+      return this.visit(o.alias, collector);
+    }
+
+    return collector;
   }
 }
