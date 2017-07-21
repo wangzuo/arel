@@ -12,6 +12,7 @@ export default class Node {
   }
 
   or(right) {
+    const { Grouping, Or } = require('../nodes');
     return new Grouping(new Or(this, right));
   }
 

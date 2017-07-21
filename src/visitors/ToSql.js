@@ -207,6 +207,21 @@ export default class ToSql extends Reduce {
     return this.literal(o, collector);
   }
 
+  visitNamedFunc(o, collector) {
+    collector.append(o.name);
+    collector.append('(');
+    if (o.distinct) {
+      collector.append('DISTINCT ');
+    }
+    collector = this.injectJoin(o.expressions, collector, ', ').append(')');
+    if (o.alias) {
+      collector.append(' AS ');
+      return this.visit(o.alias, collector);
+    }
+
+    return collector;
+  }
+
   visitExtract(o, collector) {
     collector.append(`EXTRACT(${o.field.toUpperCase()} FROM `);
     return this.visit(o.expr, collector).append(')');
@@ -227,6 +242,16 @@ export default class ToSql extends Reduce {
 
   visitNumber(o, collector) {
     return this.literal(o, collector);
+  }
+
+  visitAnd(o, collector) {
+    return this.injectJoin(o.children, collector, ' AND ');
+  }
+
+  visitOr(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' OR ');
+    return this.visit(o.right, collector);
   }
 
   visitAssignment(o, collector) {
@@ -367,7 +392,8 @@ export default class ToSql extends Reduce {
     const right = o.right;
     collector = this.visit(o.left, collector);
 
-    if (isEmpty(right)) {
+    // todo
+    if (right.isNull && right.isNull()) {
       collector.append(' IS NULL');
     } else {
       collector.append(' = ');
@@ -399,10 +425,6 @@ export default class ToSql extends Reduce {
       collector.append('(');
       return this.visit(o.expr, collector).append(')');
     }
-  }
-
-  visitAnd(o, collector) {
-    return this.injectJoin(o.children, collector, ' AND ');
   }
 
   visitFunc(o, collector) {

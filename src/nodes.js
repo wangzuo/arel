@@ -11,18 +11,20 @@ export const buildQuoted = (other, attribute = null) => {
   const { Table, SelectManager } = require('./Arel');
 
   if (
+    other &&
+    other.constructor &&
     [Node, Attribute, Table, BindParam, SelectManager, Quoted].indexOf(
       other.constructor
     ) >= 0
   ) {
     return other;
-  } else {
-    if (attribute instanceof Attribute) {
-      return new Casted(other, attribute);
-    }
-
-    return new Quoted(other);
   }
+
+  if (attribute instanceof Attribute) {
+    return new Casted(other, attribute);
+  }
+
+  return new Quoted(other);
 };
 
 export Node from './nodes/Node';

@@ -6,6 +6,11 @@ export default class Unary extends Node {
     this.expr = expr;
   }
 
+  // alias
+  get value() {
+    return this.expr;
+  }
+
   get hash() {
     return this.expr.hash;
   }

@@ -71,20 +71,20 @@ describe('ToSql', () => {
   //   expect(sql).toBe('"users".*');
   // });
 
-  // it('should visit named functions', () => {
-  //   const func = new NamedFunc('omg', [Arel.star]);
-  //   expect(compile(func)).toBe('omg(*)');
-  // });
+  it('should visit named functions', () => {
+    const func = new NamedFunc('omg', [Arel.star()]);
+    expect(compile(func)).toBe('omg(*)');
+  });
 
-  // it('should chain predications on named functions', () => {
-  //   const func = new NamedFunc('omg', [Arel.star]);
-  //   expect(compile(func.eq(2))).toBe('omg(*) = 2');
-  // });
+  it('should chain predications on named functions', () => {
+    const func = new NamedFunc('omg', [Arel.star()]);
+    expect(compile(func.eq(2))).toBe('omg(*) = 2');
+  });
 
-  // it('should handle nil with named functions', () => {
-  //   const func = new NamedFunc('omg', [Arel.star]);
-  //   expect(compile(func.eq(null))).toBe('omg(8) IS NULL');
-  // });
+  it('should handle nil with named functions', () => {
+    const func = new NamedFunc('omg', [Arel.star()]);
+    expect(compile(func.eq(null))).toBe('omg(*) IS NULL');
+  });
 
   // it('should visit built-in functions', () => {
   //   expect(compile(new Count([Arel.star]))).toBe('COUNT(*)');
