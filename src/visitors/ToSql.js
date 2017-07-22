@@ -184,6 +184,11 @@ export default class ToSql extends Reduce {
     return collector.addBind(o, () => '?');
   }
 
+  visitNot(o, collector) {
+    collector.append('NOT (');
+    return this.visit(o.expr, collector).append(')');
+  }
+
   visitTable(o, collector) {
     if (o.tableAlias) {
       return collector.append(

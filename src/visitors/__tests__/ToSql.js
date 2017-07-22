@@ -176,13 +176,15 @@ describe('ToSql', () => {
   it('should contain a single space before ORDER BY', () => {
     const table = new Table('users');
     const test = table.order(table.column('name'));
-    expect(compile(test)).toBe(`"users" ORDER BY`);
+    expect(compile(test)).toBe(`(SELECT FROM "users" ORDER BY "users"."name")`);
   });
 
   it('should quote LIMIT without column type coercion', () => {
     const table = new Table('users');
     const sc = table.where(table.column('name').eq(0)).take(1).ast;
-    expect(compile(sc)).toBe(`WHERE "users"."name" = 0 LIMIT 1`);
+    expect(compile(sc)).toBe(
+      `SELECT  FROM "users" WHERE "users"."name" = 0 LIMIT 1`
+    );
   });
 
   // it('should visitDateTime', () => {});
@@ -190,7 +192,7 @@ describe('ToSql', () => {
   // it('should visitFloat', () => {});
 
   it('should apply Not to the whole expression', () => {
-    const table = new Arel.nodes.Table('users');
+    const table = new Arel.Table('users');
     const attr = table.column('id');
     const node = new Arel.nodes.And([attr.eq(10), attr.eq(11)]);
     expect(compile(new Arel.nodes.Not(node))).toBe(
@@ -219,14 +221,14 @@ describe('ToSql', () => {
 
   it('should visitSelectManager, which is a subquery', () => {
     const mgr = new Arel.Table('foo').project('bar');
-    expet(compile(mgr)).toBe(`(SELECT bar FROM "foo")`);
+    expect(compile(mgr)).toBe(`(SELECT bar FROM "foo")`);
   });
 
   it('should visitAnd', () => {
     const table = new Arel.Table('users');
     const attr = table.column('id');
     const node = new Arel.nodes.And([attr.eq(10), attr.eq(11)]);
-    expect(compile(node)).toBe(`"user"."id" = 10 AND "users"."id" = 11`);
+    expect(compile(node)).toBe(`"users"."id" = 10 AND "users"."id" = 11`);
   });
 
   it('should visitOr', () => {
@@ -238,8 +240,8 @@ describe('ToSql', () => {
     const table = new Arel.Table('users');
     const column = table.column('id');
     const node = new Arel.nodes.Assignment(
-      new Arel.nodes.UnqualifedColumn(column),
-      new Arel.nodes.UnqualifedColumn(column)
+      new Arel.nodes.UnqualifiedColumn(column),
+      new Arel.nodes.UnqualifiedColumn(column)
     );
 
     expect(compile(node)).toBe(`"id" = "id"`);
@@ -263,7 +265,7 @@ describe('ToSql', () => {
 
   describe('Ordering', () => {
     it('should know how to visit', () => {
-      const table = new Arel.nodes.Table('users');
+      const table = new Arel.Table('users');
       const node = table.column('id').desc();
       expect(compile(node)).toBe(`"users"."id" DESC`);
     });
@@ -279,7 +281,7 @@ describe('ToSql', () => {
 
   describe('TableAlias', () => {});
 
-  descrbie('distinct on', () => {});
+  describe('distinct on', () => {});
 
   describe('Regexp', () => {});
   describe('NotRegexp', () => {});
