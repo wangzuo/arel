@@ -111,6 +111,63 @@ export default class ToSql extends Reduce {
     return collector.append(this.quoted(o.expr, null).toString());
   }
 
+  visitTrue(o, collector) {
+    return collector.append('TRUE');
+  }
+
+  visitFalse(o, collector) {
+    return collector.append('FALSE');
+  }
+
+  visitValuesList(o, collector) {
+    const { SqlLiteral, BindParam } = require('../nodes');
+
+    collector.append('VALUES ');
+    const len = o.rows.length - 1;
+    o.rows.forEach((row, i) => {
+      collector.append('(');
+      const rowLen = row.length - 1;
+
+      forEach(row, (value, k) => {
+        if (value instanceof SqlLiteral || value instanceof BindParam) {
+          collector = this.visit(value, collector);
+        } else {
+          collector.append(this.quote(value));
+        }
+        if (k !== rowLen) {
+          collector.append(COMMA);
+        }
+      });
+
+      collector.append(')');
+      if (i !== len) {
+        collector.append(COMMA);
+      }
+    });
+
+    return collector;
+  }
+
+  visitValues(o, collector) {
+    const { SqlLiteral, BindParam } = require('../nodes');
+
+    collector.append('VALUES (');
+    const len = o.expressions.length - 1;
+    o.expressions.forEach((value, i) => {
+      if (value instanceof SqlLiteral || value instanceof BindParam) {
+        collector = this.visit(value, collector);
+      } else {
+        collector.append(this.quote(value).toString());
+      }
+
+      if (i !== len) {
+        collector.append(COMMA);
+      }
+    });
+
+    return collector.append(')');
+  }
+
   visitSelectStatement(o, collector) {
     if (o.with) {
       collector = this.visit(o.with, collector);
@@ -132,6 +189,13 @@ export default class ToSql extends Reduce {
 
     this.visitSelectOptions(o, collector);
 
+    return collector;
+  }
+
+  visitSelectOptions(o, collector) {
+    collector = this.maybeVisit(o.limit, collector);
+    collector = this.maybeVisit(o.offset, collector);
+    collector = this.maybeVisit(o.lock, collector);
     return collector;
   }
 
@@ -173,323 +237,31 @@ export default class ToSql extends Reduce {
     }
   }
 
-  visitSelectOptions(o, collector) {
-    collector = this.maybeVisit(o.limit, collector);
-    collector = this.maybeVisit(o.offset, collector);
-    collector = this.maybeVisit(o.lock, collector);
-    return collector;
-  }
-
-  visitBindParam(o, collector) {
-    return collector.addBind(o, () => '?');
-  }
-
-  visitNot(o, collector) {
-    collector.append('NOT (');
-    return this.visit(o.expr, collector).append(')');
-  }
-
-  visitTable(o, collector) {
-    if (o.tableAlias) {
-      return collector.append(
-        `${this.quoteTableName(o.name)} ${this.quoteTableName(o.tableAlias)}`
-      );
-    }
-
-    return collector.append(this.quoteTableName(o.name));
-  }
-
-  visitSelectManager(o, collector) {
-    return collector.append(`(${trimEnd(o.toSql())})`);
-  }
-
-  // def literal o, collector; collector << o.to_s; end
-  literal(o, collector) {
-    return collector.append(o.toString());
-  }
-
-  visitSqlLiteral(o, collector) {
-    return this.literal(o, collector);
-  }
-
-  visitNamedFunc(o, collector) {
-    collector.append(o.name);
-    collector.append('(');
-    if (o.distinct) {
-      collector.append('DISTINCT ');
-    }
-    collector = this.injectJoin(o.expressions, collector, ', ').append(')');
-    if (o.alias) {
-      collector.append(' AS ');
-      return this.visit(o.alias, collector);
-    }
-
-    return collector;
-  }
-
-  visitExtract(o, collector) {
-    collector.append(`EXTRACT(${o.field.toUpperCase()} FROM `);
-    return this.visit(o.expr, collector).append(')');
-  }
-
-  visitCount(o, collector) {
-    return this.aggregate('COUNT', o, collector);
-  }
-
-  visitSum(o, collector) {
-    return this.aggregate('SUM', o, collector);
-  }
-
-  visitMax(o, collector) {
-    return this.aggregate('MAX', o, collector);
-  }
-
-  visitMin(o, collector) {
-    return this.aggregate('MIN', o, collector);
-  }
-
-  visitAvg(o, collector) {
-    return this.aggregate('AVG', o, collector);
-  }
-
-  visitOffset(o, collector) {
-    collector.append('OFFSET ');
+  visitBin(o, collector) {
     return this.visit(o.expr, collector);
   }
 
-  visitNumber(o, collector) {
-    return this.literal(o, collector);
+  visitDistinct(o, collector) {
+    return collector.append(DISTINCT);
   }
 
-  visitAnd(o, collector) {
-    return this.injectJoin(o.children, collector, ' AND ');
+  visitDistinctOn(o, collector) {
+    throw new Error('DISTINCT ON not implemented for this db');
   }
 
-  visitOr(o, collector) {
-    collector = this.visit(o.left, collector);
-    collector.append(' OR ');
-    return this.visit(o.right, collector);
+  visitWith(o, collector) {
+    collector.append('WITH ');
+    return this.injectJoin(o.children, collector, COMMA);
   }
 
-  visitAssignment(o, collector) {
-    const { UnqualifiedColumn, BindParam } = require('../nodes');
-    const { Attribute } = require('../attributes');
-
-    if (
-      o.right instanceof UnqualifiedColumn ||
-      o.right instanceof Attribute ||
-      o.right instanceof BindParam
-    ) {
-      collector = this.visit(o.left, collector);
-      collector.append(' = ');
-      return this.visit(o.right, collector);
-    } else {
-      collector = this.visit(o.left, collector);
-      collector.append(' = ');
-      collector.append(this.quote(o.right).toString());
-    }
-
-    return collector;
-  }
-
-  visitUnqualifiedColumn(o, collector) {
-    collector.append(this.quoteColumnName(o.name));
-    return collector;
-  }
-
-  visitGroup(o, collector) {
-    return this.visit(o.expr, collector);
-  }
-
-  visitTop(o, collector) {
-    return collector;
-  }
-
-  visitLimit(o, collector) {
-    collector.append('LIMIT ');
-    return this.visit(o.expr, collector);
-  }
-
-  visitValues(o, collector) {
-    const { SqlLiteral, BindParam } = require('../nodes');
-
-    collector.append('VALUES (');
-    const len = o.expressions.length - 1;
-    o.expressions.forEach((value, i) => {
-      if (value instanceof SqlLiteral || value instanceof BindParam) {
-        collector = this.visit(value, collector);
-      } else {
-        collector.append(this.quote(value).toString());
-      }
-
-      if (i !== len) {
-        collector.append(COMMA);
-      }
-    });
-
-    return collector.append(')');
-  }
-
-  visitValuesList(o, collector) {
-    const { SqlLiteral, BindParam } = require('../nodes');
-
-    collector.append('VALUES ');
-    const len = o.rows.length - 1;
-    o.rows.forEach((row, i) => {
-      collector.append('(');
-      const rowLen = row.length - 1;
-
-      forEach(row, (value, k) => {
-        if (value instanceof SqlLiteral || value instanceof BindParam) {
-          collector = this.visit(value, collector);
-        } else {
-          collector.append(this.quote(value));
-        }
-        if (k !== rowLen) {
-          collector.append(COMMA);
-        }
-      });
-
-      collector.append(')');
-      if (i !== len) {
-        collector.append(COMMA);
-      }
-    });
-
-    return collector;
-  }
-
-  visitIn(o, collector) {
-    if (isArray(o.right) && isEmpty(o.right)) {
-      collector.append('1=0');
-    } else {
-      collector = this.visit(o.left, collector);
-      collector.append(' IN (');
-      this.visit(o.right, collector).append(')');
-    }
-
-    return collector;
-  }
-
-  quoted(o, a) {
-    if (a && a.ableToTypeCast()) {
-      return this.quote(a.typeCastForDatabase(o));
-    } else {
-      return this.quote(o);
-    }
-  }
-
-  visitJoinSource(o, collector) {
-    if (o.left) {
-      collector = this.visit(o.left, collector);
-    }
-
-    if (!isEmpty(o.right)) {
-      if (o.left) {
-        collector.append(SPACE);
-      }
-      collector = this.injectJoin(o.right, collector, SPACE);
-    }
-
-    return collector;
-  }
-
-  visitInnerJoin(o, collector) {
-    collector.append('INNER JOIN ');
-    collector = this.visit(o.left, collector);
-    if (o.right) {
-      collector.append(SPACE);
-      this.visit(o.right, collector);
-    }
-
-    return collector;
-  }
-
-  visitEquality(o, collector) {
-    const right = o.right;
-    collector = this.visit(o.left, collector);
-
-    // todo
-    if (isNull(right) || (right.isNull && right.isNull())) {
-      collector.append(' IS NULL');
-    } else {
-      collector.append(' = ');
-      this.visit(right, collector);
-    }
-
-    return collector;
-  }
-
-  visitNotEqual(o, collector) {
-    const right = o.right;
-    collector = this.visit(o.left, collector);
-
-    // todo
-    if (isNull(right) || (right.isNull && right.isNull())) {
-      return collector.append(' IS NOT NULL');
-    }
-
-    collector.append(' != ');
-    return this.visit(right, collector);
-  }
-
-  visitAttribute(o, collector) {
-    const joinName = o.relation.tableAlias || o.relation.name;
-    return collector.append(
-      `${this.quoteTableName(joinName)}.${this.quoteColumnName(o.name)}`
-    );
-  }
-
-  visitTableAlias(o, collector) {
-    collector = this.visit(o.relation, collector);
-    collector.append(' ');
-    return collector.append(this.quoteTableName(o.name));
-  }
-
-  visitGrouping(o, collector) {
-    const { Grouping } = require('../nodes');
-
-    if (o.expr instanceof Grouping) {
-      return this.visit(o.expr, collector);
-    } else {
-      collector.append('(');
-      return this.visit(o.expr, collector).append(')');
-    }
-  }
-
-  visitFunc(o, collector) {
-    collector.append(o.name);
-    collector.append('(');
-    if (o.distinct) collector.append('DISTINCT ');
-    collector = this.injectJoin(o.expressions, collector, ', ').append(')');
-    if (o.alias) {
-      collector.append(' AS ');
-      return this.visit(o.alias, collector);
-    } else {
-      return collector;
-    }
-  }
-
-  visitOn(o, collector) {
-    collector.append('ON ');
-    return this.visit(o.expr, collector);
+  visitWithRecursive(o, collector) {
+    collector.append('WITH RECURSIVE ');
+    return this.injectJoin(o.children, collector, COMMA);
   }
 
   visitUnion(o, collector) {
     collector.append('( ');
     return this.infixValue(o, collector, ' UNION ').append(' )');
-  }
-
-  visitLessThan(o, collector) {
-    collector = this.visit(o.left, collector);
-    collector.append(' < ');
-    return this.visit(o.right, collector);
-  }
-
-  visitGreaterThan(o, collector) {
-    collector = this.visit(o.left, collector);
-    collector.append(' > ');
-    return this.visit(o.right, collector);
   }
 
   visitUnionAll(o, collector) {
@@ -505,65 +277,6 @@ export default class ToSql extends Reduce {
   visitExcept(o, collector) {
     collector.append('( ');
     return this.infixValue(o, collector, ' EXCEPT ').append(' )');
-  }
-
-  visitBetween(o, collector) {
-    collector = this.visit(o.left, collector);
-    collector.append(' BETWEEN ');
-    return this.visit(o.right, collector);
-  }
-
-  visitWith(o, collector) {
-    collector.append('WITH ');
-    return this.injectJoin(o.children, collector, COMMA);
-  }
-
-  visitAs(o, collector) {
-    collector = this.visit(o.left, collector);
-    collector.append(' AS ');
-    return this.visit(o.right, collector);
-  }
-
-  visitWithRecursive(o, collector) {
-    collector.append('WITH RECURSIVE ');
-    return this.injectJoin(o.children, collector, COMMA);
-  }
-
-  visitLock(o, collector) {
-    return this.visit(o.expr, collector);
-  }
-
-  visitOuterJoin(o, collector) {
-    collector.append('LEFT OUTER JOIN ');
-    collector = this.visit(o.left, collector);
-    collector.append(' ');
-    return this.visit(o.right, collector);
-  }
-
-  visitStringJoin(o, collector) {
-    return this.visit(o.left, collector);
-  }
-
-  visitRightOuterJoin(o, collector) {
-    collector.append('RIGHT OUTER JOIN ');
-    collector = this.visit(o.left, collector);
-    collector.append(SPACE);
-    return this.visit(o.right, collector);
-  }
-
-  visitFullOuterJoin(o, collector) {
-    collector.append('FULL OUTER JOIN ');
-    collector = this.visit(o.left, collector);
-    collector.append(SPACE);
-    return this.visit(o.right, collector);
-  }
-
-  visitAscending(o, collector) {
-    return this.visit(o.expr, collector).append(' ASC');
-  }
-
-  visitDescending(o, collector) {
-    return this.visit(o.expr, collector).append(' DESC');
   }
 
   visitNamedWindow(o, collector) {
@@ -607,14 +320,6 @@ export default class ToSql extends Reduce {
     return this.collector.append('ROWS');
   }
 
-  visitPreceding(o, collector) {
-    if (o.expr) {
-      return this.visit(o.expr, collector).append(' PRECEDING');
-    }
-
-    return collector.append('UNBOUNDED PRECEDING');
-  }
-
   visitRange(o, collector) {
     if (o.expr) {
       collector.append('RANGE ');
@@ -622,6 +327,14 @@ export default class ToSql extends Reduce {
     }
 
     return collector.append('RANGE');
+  }
+
+  visitPreceding(o, collector) {
+    if (o.expr) {
+      return this.visit(o.expr, collector).append(' PRECEDING');
+    }
+
+    return collector.append('UNBOUNDED PRECEDING');
   }
 
   visitFollowing(o, collector) {
@@ -636,12 +349,129 @@ export default class ToSql extends Reduce {
     return collector.append('CURRENT ROW');
   }
 
-  visitDistinct(o, collector) {
-    return collector.append(DISTINCT);
+  visitOver(o, collector) {
+    const { SqlLiteral } = require('../nodes');
+
+    if (isNull(o.right)) {
+      return this.visit(o.left, collector).append(' OVER ()');
+    } else if (o.right instanceof SqlLiteral) {
+      return this.infixValue(o, collector, ' OVER ');
+    } else if (isString(o.right)) {
+      return this.visit(o.left, collector).append(
+        ` OVER ${this.quoteColumnName(o.right)}`
+      );
+    }
+
+    return this.infixValue(o, collector, ' OVER ');
   }
 
-  visitDistinctOn(o, collector) {
-    throw new Error('DISTINCT ON not implemented for this db');
+  visitOffset(o, collector) {
+    collector.append('OFFSET ');
+    return this.visit(o.expr, collector);
+  }
+
+  visitLimit(o, collector) {
+    collector.append('LIMIT ');
+    return this.visit(o.expr, collector);
+  }
+
+  visitTop(o, collector) {
+    return collector;
+  }
+
+  visitLock(o, collector) {
+    return this.visit(o.expr, collector);
+  }
+
+  visitGrouping(o, collector) {
+    const { Grouping } = require('../nodes');
+
+    if (o.expr instanceof Grouping) {
+      return this.visit(o.expr, collector);
+    } else {
+      collector.append('(');
+      return this.visit(o.expr, collector).append(')');
+    }
+  }
+
+  visitSelectManager(o, collector) {
+    return collector.append(`(${trimEnd(o.toSql())})`);
+  }
+
+  visitAscending(o, collector) {
+    return this.visit(o.expr, collector).append(' ASC');
+  }
+
+  visitDescending(o, collector) {
+    return this.visit(o.expr, collector).append(' DESC');
+  }
+
+  visitGroup(o, collector) {
+    return this.visit(o.expr, collector);
+  }
+
+  visitNamedFunc(o, collector) {
+    collector.append(o.name);
+    collector.append('(');
+    if (o.distinct) {
+      collector.append('DISTINCT ');
+    }
+    collector = this.injectJoin(o.expressions, collector, ', ').append(')');
+    if (o.alias) {
+      collector.append(' AS ');
+      return this.visit(o.alias, collector);
+    }
+
+    return collector;
+  }
+
+  visitExtract(o, collector) {
+    collector.append(`EXTRACT(${o.field.toUpperCase()} FROM `);
+    return this.visit(o.expr, collector).append(')');
+  }
+
+  visitCount(o, collector) {
+    return this.aggregate('COUNT', o, collector);
+  }
+
+  visitSum(o, collector) {
+    return this.aggregate('SUM', o, collector);
+  }
+
+  visitMax(o, collector) {
+    return this.aggregate('MAX', o, collector);
+  }
+
+  visitMin(o, collector) {
+    return this.aggregate('MIN', o, collector);
+  }
+
+  visitAvg(o, collector) {
+    return this.aggregate('AVG', o, collector);
+  }
+
+  visitTableAlias(o, collector) {
+    collector = this.visit(o.relation, collector);
+    collector.append(' ');
+    return collector.append(this.quoteTableName(o.name));
+  }
+
+  visitBetween(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' BETWEEN ');
+    return this.visit(o.right, collector);
+  }
+
+  visitGreaterThanOrEqual(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' >= ');
+    return this.visit(o.right, collector);
+  }
+
+  visitGreaterThan(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' > ');
+    return this.visit(o.right, collector);
   }
 
   visitLessThanOrEqual(o, collector) {
@@ -650,9 +480,306 @@ export default class ToSql extends Reduce {
     return this.visit(o.right, collector);
   }
 
+  visitLessThan(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' < ');
+    return this.visit(o.right, collector);
+  }
+
+  visitMatches(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' LIKE ');
+    collector = this.visit(o.right, collector);
+    if (o.escape) {
+      collector.append(' ESCAPE ');
+      return this.visit(o.escape, collector);
+    }
+
+    return collector;
+  }
+
+  visitDoesNotMatch(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' NOT LIKE ');
+    collector = this.visit(o.right, collector);
+    if (o.escape) {
+      collector.append(' ESCAPE ');
+      return this.visit(o.escape, collector);
+    }
+
+    return collector;
+  }
+
+  visitJoinSource(o, collector) {
+    if (o.left) {
+      collector = this.visit(o.left, collector);
+    }
+
+    if (!isEmpty(o.right)) {
+      if (o.left) {
+        collector.append(SPACE);
+      }
+      collector = this.injectJoin(o.right, collector, SPACE);
+    }
+
+    return collector;
+  }
+
+  visitRegexp(o, collector) {
+    throw new Error('~ not implemented for this db');
+  }
+
+  visitNotRegexp(o, collector) {
+    throw new Error('!~ not implemented for this db');
+  }
+
+  visitStringJoin(o, collector) {
+    return this.visit(o.left, collector);
+  }
+
+  visitFullOuterJoin(o, collector) {
+    collector.append('FULL OUTER JOIN ');
+    collector = this.visit(o.left, collector);
+    collector.append(SPACE);
+    return this.visit(o.right, collector);
+  }
+
+  visitOuterJoin(o, collector) {
+    collector.append('LEFT OUTER JOIN ');
+    collector = this.visit(o.left, collector);
+    collector.append(' ');
+    return this.visit(o.right, collector);
+  }
+
+  visitRightOuterJoin(o, collector) {
+    collector.append('RIGHT OUTER JOIN ');
+    collector = this.visit(o.left, collector);
+    collector.append(SPACE);
+    return this.visit(o.right, collector);
+  }
+
+  visitInnerJoin(o, collector) {
+    collector.append('INNER JOIN ');
+    collector = this.visit(o.left, collector);
+    if (o.right) {
+      collector.append(SPACE);
+      this.visit(o.right, collector);
+    }
+
+    return collector;
+  }
+
+  visitOn(o, collector) {
+    collector.append('ON ');
+    return this.visit(o.expr, collector);
+  }
+
+  visitNot(o, collector) {
+    collector.append('NOT (');
+    return this.visit(o.expr, collector).append(')');
+  }
+
+  visitTable(o, collector) {
+    if (o.tableAlias) {
+      return collector.append(
+        `${this.quoteTableName(o.name)} ${this.quoteTableName(o.tableAlias)}`
+      );
+    }
+
+    return collector.append(this.quoteTableName(o.name));
+  }
+
+  visitIn(o, collector) {
+    if (isArray(o.right) && isEmpty(o.right)) {
+      collector.append('1=0');
+    } else {
+      collector = this.visit(o.left, collector);
+      collector.append(' IN (');
+      this.visit(o.right, collector).append(')');
+    }
+
+    return collector;
+  }
+
+  visitNotIn(o, collector) {
+    if (isArray(o.right) && isEmpty(o.right)) {
+      return collector.append('1=1');
+    }
+
+    collector = this.visit(o.left, collector);
+    collector.append(' NOT IN (');
+    collector = this.visit(o.right, collector);
+    return collector.append(')');
+  }
+
+  visitAnd(o, collector) {
+    return this.injectJoin(o.children, collector, ' AND ');
+  }
+
+  visitOr(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' OR ');
+    return this.visit(o.right, collector);
+  }
+
+  visitAssignment(o, collector) {
+    const { UnqualifiedColumn, BindParam } = require('../nodes');
+    const { Attribute } = require('../attributes');
+
+    if (
+      o.right instanceof UnqualifiedColumn ||
+      o.right instanceof Attribute ||
+      o.right instanceof BindParam
+    ) {
+      collector = this.visit(o.left, collector);
+      collector.append(' = ');
+      return this.visit(o.right, collector);
+    } else {
+      collector = this.visit(o.left, collector);
+      collector.append(' = ');
+      collector.append(this.quote(o.right).toString());
+    }
+
+    return collector;
+  }
+
+  visitEquality(o, collector) {
+    const right = o.right;
+    collector = this.visit(o.left, collector);
+
+    // todo
+    if (isNull(right) || (right.isNull && right.isNull())) {
+      collector.append(' IS NULL');
+    } else {
+      collector.append(' = ');
+      this.visit(right, collector);
+    }
+
+    return collector;
+  }
+
+  visitNotEqual(o, collector) {
+    const right = o.right;
+    collector = this.visit(o.left, collector);
+
+    // todo
+    if (isNull(right) || (right.isNull && right.isNull())) {
+      return collector.append(' IS NOT NULL');
+    }
+
+    collector.append(' != ');
+    return this.visit(right, collector);
+  }
+
+  visitAs(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(' AS ');
+    return this.visit(o.right, collector);
+  }
+
+  visitCase(o, collector) {
+    collector.append('CASE ');
+    if (o.case) {
+      this.visit(o.case, collector);
+      collector.append(' ');
+    }
+
+    o.conditions.forEach(condition => {
+      this.visit(condition, collector);
+      collector.append(' ');
+    });
+
+    if (o.default) {
+      this.visit(o.default, collector);
+      collector.append(' ');
+    }
+
+    return collector.append('END');
+  }
+
+  visitWhen(o, collector) {
+    collector.append('WHEN ');
+    this.visit(o.left, collector);
+    collector.append(' THEN ');
+    return this.visit(o.right, collector);
+  }
+
+  visitElse(o, collector) {
+    collector.append('ELSE ');
+    return this.visit(o.expr, collector);
+  }
+
+  visitUnqualifiedColumn(o, collector) {
+    collector.append(this.quoteColumnName(o.name));
+    return collector;
+  }
+
+  visitAttribute(o, collector) {
+    const joinName = o.relation.tableAlias || o.relation.name;
+    return collector.append(
+      `${this.quoteTableName(joinName)}.${this.quoteColumnName(o.name)}`
+    );
+  }
+
+  // todo: alias for attribute types
+  // visitInteger
+  // visitFloat
+  // visitDecimal
+  // visitString
+  // visitTime
+  // visitBoolean
+
+  literal(o, collector) {
+    return collector.append(o.toString());
+  }
+
+  visitNumber(o, collector) {
+    return this.literal(o, collector);
+  }
+
+  visitBindParam(o, collector) {
+    return collector.addBind(o, () => '?');
+  }
+
+  // alias
+  visitSqlLiteral(o, collector) {
+    return this.literal(o, collector);
+  }
+
+  // todo
+  // visitBignum
+  // visitFixnum
+  // visitInteger
+
+  quoted(o, a) {
+    if (a && a.ableToTypeCast()) {
+      return this.quote(a.typeCastForDatabase(o));
+    } else {
+      return this.quote(o);
+    }
+  }
+
+  // todo
+  unsupported(o, collector) {
+    throw new Error('unsupported visit error');
+  }
+
+  visitInfixOperation(o, collector) {
+    collector = this.visit(o.left, collector);
+    collector.append(` ${o.operator} `);
+    return this.visit(o.right, collector);
+  }
+
+  visitUnaryOperation(o, collector) {
+    collector.append(` ${o.operator} `);
+    return this.visit(o.expr, collector);
+  }
+
   visitArray(o, collector) {
     return this.injectJoin(o, collector, ', ');
   }
+
+  // visitSet
 
   quote(value) {
     const { SqlLiteral } = require('../nodes');
