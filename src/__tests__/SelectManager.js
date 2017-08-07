@@ -974,9 +974,10 @@ describe('SelectManager', () => {
       const table = new Table('users');
       const manager = new Arel.SelectManager();
       manager.from(table);
-      const values = new Map();
-      values.set(table.column('id'), 1);
-      const stmt = manager.compileUpdate(values, new Attribute(table, 'id'));
+      const stmt = manager.compileUpdate(
+        [[table.column('id'), 1]],
+        new Attribute(table, 'id')
+      );
       expect(stmt.toSql()).toBe(`UPDATE "users" SET "id" = 1`);
     });
 
@@ -1026,9 +1027,10 @@ describe('SelectManager', () => {
       const manager = new Arel.SelectManager();
       manager.where(table.column('id').eq(10));
       manager.from(table);
-      const values = new Map();
-      values.set(table.column('id'), 1);
-      const stmt = manager.compileUpdate(values, new Attribute(table, 'id'));
+      const stmt = manager.compileUpdate(
+        [[table.column('id'), 1]],
+        new Attribute(table, 'id')
+      );
 
       expect(stmt.toSql()).toBe(
         `UPDATE "users" SET "id" = 1 WHERE "users"."id" = 10`
@@ -1041,9 +1043,10 @@ describe('SelectManager', () => {
       manager.where(table.column('foo').eq(10));
       manager.take(42);
       manager.from(table);
-      const values = new Map();
-      values.set(table.column('id'), 1);
-      const stmt = manager.compileUpdate(values, new Attribute(table, 'id'));
+      const stmt = manager.compileUpdate(
+        [[table.column('id'), 1]],
+        new Attribute(table, 'id')
+      );
 
       expect(stmt.toSql()).toBe(
         `UPDATE "users" SET "id" = 1 WHERE "users"."id" IN (SELECT "users"."id" FROM "users" WHERE "users"."foo" = 10 LIMIT 42)`

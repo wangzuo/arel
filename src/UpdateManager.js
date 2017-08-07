@@ -53,7 +53,7 @@ export default class UpdateManager extends TreeManager {
       this.ast.values = [values];
     } else {
       const { Assignment, UnqualifiedColumn } = require('./nodes');
-      this.ast.values = Array.from(values).map(
+      this.ast.values = values.map(
         ([column, value]) =>
           new Assignment(new UnqualifiedColumn(column), value)
       );

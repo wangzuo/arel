@@ -5,9 +5,7 @@ const Crud = {
     const um = new UpdateManager();
 
     const relation =
-      values instanceof SqlLiteral
-        ? this.ctx.from
-        : values.entries().next().value[0].relation; // Map (attr => value)
+      values instanceof SqlLiteral ? this.ctx.from : values[0][0].relation;
 
     um.key = pk;
     um.table(relation);
