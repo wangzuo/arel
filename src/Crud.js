@@ -5,7 +5,9 @@ const Crud = {
     const um = new UpdateManager();
 
     const relation =
-      values == SqlLiteral ? this.ctx.from : values[0][0].relation;
+      values instanceof SqlLiteral
+        ? this.ctx.from
+        : values.entries().next().value[0].relation; // Map (attr => value)
 
     um.key = pk;
     um.table(relation);
@@ -13,7 +15,7 @@ const Crud = {
     if (this.ast.limit) {
       um.take(this.ast.limit.expr);
     }
-    um.order(this.ast.orders);
+    um.order(...this.ast.orders);
     um.wheres = this.ctx.wheres;
     return um;
   },

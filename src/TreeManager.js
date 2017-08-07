@@ -28,6 +28,7 @@ export default class TreeManager {
       new SQLString()
     );
 
+    // TODO: output sql function
     return collector.value.replace(/\s\s+/g, ' ').trim();
   }
 

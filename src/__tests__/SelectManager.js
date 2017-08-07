@@ -21,6 +21,7 @@ const {
   CurrentRow,
   Between
 } = Arel.nodes;
+const { Attribute } = Arel.attributes;
 
 describe('SelectManager', () => {
   function testJoinSources() {
@@ -968,7 +969,87 @@ describe('SelectManager', () => {
     // it('returns nil when there are no wheres', () => {});
   });
 
-  describe('update', () => {});
+  describe('update', () => {
+    it('creates an update statement', () => {
+      const table = new Table('users');
+      const manager = new Arel.SelectManager();
+      manager.from(table);
+      const values = new Map();
+      values.set(table.column('id'), 1);
+      const stmt = manager.compileUpdate(values, new Attribute(table, 'id'));
+      expect(stmt.toSql()).toBe(`UPDATE "users" SET "id" = 1`);
+    });
+
+    it('takes a string', () => {
+      const table = new Table('users');
+      const manager = new Arel.SelectManager();
+      manager.from(table);
+      const stmt = manager.compileUpdate(
+        new SqlLiteral('foo = bar'),
+        new Attribute(table, 'id')
+      );
+      expect(stmt.toSql()).toBe(`UPDATE "users" SET foo = bar`);
+    });
+
+    it('copies limit', () => {
+      const table = new Table('users');
+      const manager = new Arel.SelectManager();
+      manager.from(table);
+      manager.take(1);
+      const stmt = manager.compileUpdate(
+        new SqlLiteral('foo = bar'),
+        new Attribute(table, 'id')
+      );
+      stmt.key = table.column('id');
+      expect(stmt.toSql()).toBe(
+        `UPDATE "users" SET foo = bar WHERE "users"."id" IN (SELECT "users"."id" FROM "users" LIMIT 1)`
+      );
+    });
+
+    it('copies order', () => {
+      const table = new Table('users');
+      const manager = new Arel.SelectManager();
+      manager.from(table);
+      manager.order('foo');
+      const stmt = manager.compileUpdate(
+        new SqlLiteral('foo = bar'),
+        new Attribute(table, 'id')
+      );
+      stmt.key = table.column('id');
+      expect(stmt.toSql()).toBe(
+        `UPDATE "users" SET foo = bar WHERE "users"."id" IN (SELECT "users"."id" FROM "users" ORDER BY foo)`
+      );
+    });
+
+    it('copies where clauses', () => {
+      const table = new Table('users');
+      const manager = new Arel.SelectManager();
+      manager.where(table.column('id').eq(10));
+      manager.from(table);
+      const values = new Map();
+      values.set(table.column('id'), 1);
+      const stmt = manager.compileUpdate(values, new Attribute(table, 'id'));
+
+      expect(stmt.toSql()).toBe(
+        `UPDATE "users" SET "id" = 1 WHERE "users"."id" = 10`
+      );
+    });
+
+    it('copies where clauses when nesting is triggered', () => {
+      const table = new Table('users');
+      const manager = new Arel.SelectManager();
+      manager.where(table.column('foo').eq(10));
+      manager.take(42);
+      manager.from(table);
+      const values = new Map();
+      values.set(table.column('id'), 1);
+      const stmt = manager.compileUpdate(values, new Attribute(table, 'id'));
+
+      expect(stmt.toSql()).toBe(
+        `UPDATE "users" SET "id" = 1 WHERE "users"."id" IN (SELECT "users"."id" FROM "users" WHERE "users"."foo" = 10 LIMIT 42)`
+      );
+    });
+  });
 
   describe('project', () => {
     it('takes sql literals', () => {
