@@ -1,3 +1,5 @@
+import isArray from 'lodash/isArray';
+
 const Predications = {
   notEq(other) {
     const { NotEqual } = require('./nodes');
@@ -39,7 +41,9 @@ const Predications = {
 
     if (other instanceof SelectManager) {
       return new In(this, other.ast);
-    } // todo
+    } else if (isArray(other)) {
+      return new In(this, this.quotedArray(other));
+    }
   },
 
   inAny(others) {},
@@ -80,7 +84,12 @@ const Predications = {
 
   doesNotMatchAny(others, escape = null) {},
   doesNotMatchAll(others, escape = null) {},
-  gteq(right) {},
+
+  gteq(right) {
+    const { GreaterThanOrEqual } = require('./nodes');
+    return new GreaterThanOrEqual(this, this.quotedNode(right));
+  },
+
   gteqAny(others) {},
   gteqAll(others) {},
 
@@ -100,7 +109,11 @@ const Predications = {
   ltAny(others) {},
   ltAll(others) {},
 
-  lteq(right) {},
+  lteq(right) {
+    const { LessThanOrEqual } = require('./nodes');
+    return new LessThanOrEqual(this, this.quotedNode(right));
+  },
+
   lteqAny(others) {},
   lteqAll(others) {},
 
