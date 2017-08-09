@@ -70,6 +70,7 @@ export Regexp, { NotRegexp } from './nodes/Regexp';
 export True from './nodes/True';
 export False from './nodes/False';
 export Extract from './nodes/Extract';
+export Over from './nodes/Over';
 
 export class Distinct extends Node {
   hash() {}
