@@ -302,7 +302,98 @@ describe('ToSql', () => {
     });
   });
 
-  describe('InFixOperation', () => {});
+  describe('Nodes.InfixOperation', () => {
+    it('should handle Multiplication', () => {
+      const price = new Arel.attributes.Decimal(new Table('products'), 'price');
+      const rate = new Arel.attributes.Decimal(
+        new Table('currency_rates'),
+        'rate'
+      );
+      const node = price.multiple(rate);
+
+      expect(compile(node)).toBe(
+        `"products"."price" * "currency_rates"."rate"`
+      );
+    });
+
+    it('should handle Division', () => {
+      const node = new Arel.attributes.Decimal(
+        new Table('products'),
+        'price'
+      ).divide(5);
+      expect(compile(node)).toBe(`"products"."price" / 5`);
+    });
+
+    it('should handle Addition', () => {
+      const node = new Arel.attributes.Decimal(
+        new Table('products'),
+        'price'
+      ).add(6);
+      expect(compile(node)).toBe(`"products"."price" + 6`);
+    });
+
+    it('should handle Subtraction', () => {
+      const node = new Arel.attributes.Decimal(
+        new Table('products'),
+        'price'
+      ).sub(7);
+      expect(compile(node)).toBe(`"products"."price" - 7`);
+    });
+
+    it('should handle Concatination', () => {
+      const node = table.column('name').concat(table.column('name'));
+      expect(compile(node)).toBe(`"users"."name" || "users"."name"`);
+    });
+
+    it('should handle BitwiseAnd', () => {
+      const node = new Arel.attributes.Integer(
+        new Table('products'),
+        'bitmap'
+      ).bitwiseAnd(16);
+      expect(compile(node)).toBe(`("products"."bitmap" & 16)`);
+    });
+
+    it('should handle BitwiseOr', () => {
+      const node = new Arel.attributes.Integer(
+        new Table('products'),
+        'bitmap'
+      ).bitwiseOr(16);
+      expect(compile(node)).toBe(`("products"."bitmap" | 16)`);
+    });
+
+    it('should handle BitwiseXor', () => {
+      const node = new Arel.attributes.Integer(
+        new Table('products'),
+        'bitmap'
+      ).bitwiseXor(16);
+      expect(compile(node)).toBe(`("products"."bitmap" ^ 16)`);
+    });
+
+    it('should handle BitwiseShiftLeft', () => {
+      const node = new Arel.attributes.Integer(
+        new Table('products'),
+        'bitmap'
+      ).bitwiseShiftLeft(4);
+      expect(compile(node)).toBe(`("products"."bitmap" << 4)`);
+    });
+
+    it('should handle BitwiseShiftRight', () => {
+      const node = new Arel.attributes.Integer(
+        new Table('products'),
+        'bitmap'
+      ).bitwiseShiftRight(4);
+      expect(compile(node)).toBe(`("products"."bitmap" >> 4)`);
+    });
+
+    it('should handle arbitrary operators', () => {
+      const node = new Arel.nodes.InfixOperation(
+        '&&',
+        new Arel.attributes.String(new Table('products'), 'name'),
+        new Arel.attributes.String(new Table('products'), 'name')
+      );
+      expect(compile(node)).toBe(`"products"."name" && "products"."name"`);
+    });
+  });
 
   describe('UnaryOperation', () => {});
 

@@ -9,7 +9,7 @@ export default class Attribute {
     const { default: Predications } = require('../Predications');
     const { default: AliasPredication } = require('../AliasPredication');
     const { default: OrderPredications } = require('../OrderPredications');
-    const { Math } = require('../Math');
+    const { default: Math } = require('../Math');
 
     extend(this, Expressions);
     extend(this, Predications);

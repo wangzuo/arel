@@ -721,13 +721,30 @@ export default class ToSql extends Reduce {
     );
   }
 
-  // todo: alias for attribute types
-  // visitInteger
-  // visitFloat
-  // visitDecimal
-  // visitString
-  // visitTime
-  // visitBoolean
+  // alias
+  visitInteger(...args) {
+    return this.visitAttribute(...args);
+  }
+
+  visitFloat(...args) {
+    return this.visitAttribute(...args);
+  }
+
+  visitDecimal(...args) {
+    return this.visitAttribute(...args);
+  }
+
+  visitString(...args) {
+    return this.visitAttribute(...args);
+  }
+
+  visitTime(...args) {
+    return this.visitAttribute(...args);
+  }
+
+  visitBoolean(...args) {
+    return this.visitAttribute(...args);
+  }
 
   literal(o, collector) {
     return collector.append(o.toString());
@@ -768,6 +785,47 @@ export default class ToSql extends Reduce {
     collector = this.visit(o.left, collector);
     collector.append(` ${o.operator} `);
     return this.visit(o.right, collector);
+  }
+
+  // alias
+  visitAddition(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitSubtraction(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitMultiplication(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitDivision(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitConcat(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitBitwiseAnd(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitBitwiseOr(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitBitwiseXor(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitBitwiseShiftLeft(...args) {
+    return this.visitInfixOperation(...args);
+  }
+
+  visitBitwiseShiftRight(...args) {
+    return this.visitInfixOperation(...args);
   }
 
   visitUnaryOperation(o, collector) {
