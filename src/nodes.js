@@ -11,11 +11,12 @@ export const buildQuoted = (other, attribute = null) => {
   const { Table, SelectManager } = require('./Arel');
 
   if (
-    other &&
-    other.constructor &&
-    [Node, Attribute, Table, BindParam, SelectManager, Quoted].indexOf(
-      other.constructor
-    ) >= 0
+    other instanceof Node ||
+    other instanceof Attribute ||
+    other instanceof Table ||
+    other instanceof BindParam ||
+    other instanceof SelectManager ||
+    other instanceof Quoted
   ) {
     return other;
   }
@@ -71,6 +72,7 @@ export True from './nodes/True';
 export False from './nodes/False';
 export Extract from './nodes/Extract';
 export Over from './nodes/Over';
+export Case from './nodes/Case';
 
 export class Distinct extends Node {
   hash() {}

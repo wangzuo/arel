@@ -36,21 +36,35 @@ const Predications = {
   },
 
   in(other) {
-    const { In } = require('./nodes');
     const { SelectManager } = require('./Arel');
+    const { In } = require('./nodes');
 
     if (other instanceof SelectManager) {
       return new In(this, other.ast);
     } else if (isArray(other)) {
       return new In(this, this.quotedArray(other));
     }
+
+    return new In(this, this.quotedNode(other));
   },
 
   inAny(others) {},
   inAll(others) {},
 
   notBetween(other) {},
-  notIn(other) {},
+
+  notIn(other) {
+    const { SelectManager } = require('./Arel');
+    const { NotIn } = require('./nodes');
+    if (other instanceof SelectManager) {
+      return new NotIn(this, other.ast);
+    } else if (isArray(other)) {
+      return new NotIn(this, this.quotedArray(other));
+    }
+
+    return new NotIn(this, this.quotedNode(other));
+  },
+
   notInAny(others) {},
   notInAll(others) {},
 
@@ -117,7 +131,10 @@ const Predications = {
   lteqAny(others) {},
   lteqAll(others) {},
 
-  when(right) {},
+  when(right) {
+    const { Case } = require('./nodes');
+    return new Case(this).when(this.quotedNode(right));
+  },
 
   concat(other) {
     const { Concat } = require('./nodes');

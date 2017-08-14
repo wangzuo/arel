@@ -263,7 +263,7 @@ describe('ToSql', () => {
     it('can handle subqueries', () => {});
   });
 
-  describe('Ordering', () => {
+  describe('Nodes.Ordering', () => {
     it('should know how to visit', () => {
       const table = new Arel.Table('users');
       const node = table.column('id').desc();
@@ -271,19 +271,122 @@ describe('ToSql', () => {
     });
   });
 
-  describe('In', () => {});
+  describe('Nodes.In', () => {
+    it('should know how to visit', () => {
+      const node = attr.in([1, 2, 3]);
+      expect(compile(node)).toBe(`"users"."id" IN (1, 2, 3)`);
+    });
+
+    it('should return 1=0 when empty right which is always false', () => {
+      const node = attr.in([]);
+      expect(compile(node)).toBe(`1=0`);
+    });
+
+    // it('can handle two dot ranges', () => {
+    //   const node = attr.between(1, 3);
+    //   expect(compile(node)).toBe(`"users"."id" BETWEEN 1 AND 3`);
+    // });
+
+    // it('can handle three dot ranges', () => {});
+
+    // it('can handle ranges bounded by infinity', () => {});
+
+    it('can handle subqueries', () => {
+      const subquery = table
+        .project('id')
+        .where(table.column('name').eq('Aaron'));
+      const node = attr.in(subquery);
+      expect(compile(node)).toBe(
+        `"users"."id" IN (SELECT id FROM "users" WHERE "users"."name" = 'Aaron')`
+      );
+    });
+  });
+
   describe('InFixOperation', () => {});
 
   describe('UnaryOperation', () => {});
-  describe('NotIn', () => {});
 
-  describe('Constants', () => {});
+  describe('Nodes.NotIn', () => {
+    it('should know how to visit', () => {
+      const node = attr.notIn([1, 2, 3]);
+      expect(compile(node)).toBe(`"users"."id" NOT IN (1, 2, 3)`);
+    });
+  });
 
-  describe('TableAlias', () => {});
+  describe('Constants', () => {
+    it('should handle true', () => {
+      expect(compile(new Table('users').createTrue())).toBe('TRUE');
+    });
+
+    it('should handle false', () => {
+      expect(compile(new Table('users').createFalse())).toBe('FALSE');
+    });
+  });
+
+  describe('TableAlias', () => {
+    it('should use the underlying table for checking columns', () => {
+      expect(compile(table.alias('zomgusers').column('id').eq('3'))).toBe(
+        `"zomgusers"."id" = '3'`
+      );
+    });
+  });
 
   describe('distinct on', () => {});
 
   describe('Regexp', () => {});
   describe('NotRegexp', () => {});
-  describe('Case', () => {});
+
+  describe('Nodes.Case', () => {
+    it('supports simple case expressions', () => {
+      const node = new Arel.nodes.Case(table.column('name'))
+        .when('foo')
+        .then(1);
+      expect(compile(node)).toBe(`CASE "users"."name" WHEN 'foo' THEN 1 END`);
+    });
+
+    it('supports extended case expressions', () => {
+      const node = new Arel.nodes.Case()
+        .when(table.column('name').in(['foo', 'bar']))
+        .then(1)
+        .else(0);
+
+      expect(compile(node)).toBe(
+        `CASE WHEN "users"."name" IN ('foo', 'bar') THEN 1 ELSE 0 END`
+      );
+    });
+
+    it('works without default branch', () => {
+      const node = new Arel.nodes.Case(table.column('name'))
+        .when('foo')
+        .then(1);
+      expect(compile(node)).toBe(`CASE "users"."name" WHEN 'foo' THEN 1 END`);
+    });
+
+    it('allows chaining multiple conditions', () => {
+      const node = new Arel.nodes.Case(table.column('name'))
+        .when('foo')
+        .then(1)
+        .when('bar')
+        .then(2)
+        .else(0);
+      expect(compile(node)).toBe(
+        `CASE "users"."name" WHEN 'foo' THEN 1 WHEN 'bar' THEN 2 ELSE 0 END`
+      );
+    });
+
+    it('supports #when with two arguments and no #then', () => {
+      const node = new Arel.nodes.Case(table.column('name'));
+      node.when('foo', 1).when('bar', 0);
+      expect(compile(node)).toBe(
+        `CASE "users"."name" WHEN 'foo' THEN 1 WHEN 'bar' THEN 0 END`
+      );
+    });
+
+    it('can be chained as a predicate', () => {
+      const node = table.column('name').when('foo').then('bar').else('baz');
+      expect(compile(node)).toBe(
+        `CASE "users"."name" WHEN 'foo' THEN 'bar' ELSE 'baz' END`
+      );
+    });
+  });
 });

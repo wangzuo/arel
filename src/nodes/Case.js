@@ -15,23 +15,26 @@ export default class Case extends Node {
   }
 
   when(condition, expression = null) {
-    this.conditions.push(new When(Nodes.buildQuoted(condition), expression));
+    const { buildQuoted } = require('../nodes');
+    this.conditions.push(new When(buildQuoted(condition), expression));
     return this;
   }
 
   then(expression) {
-    last(this.conditions).right = Nodes.buildQuoted(expression);
+    const { buildQuoted } = require('../nodes');
+    last(this.conditions).right = buildQuoted(expression);
     return this;
   }
 
   else(expression) {
-    this.default = new Else(Nodes.buildQuoted(expression));
+    const { buildQuoted } = require('../nodes');
+    this.default = new Else(buildQuoted(expression));
     return this;
   }
 
-  hash() {
-    return [this.case, this.conditions, this.default].hash;
-  }
+  // hash() {
+  //   return [this.case, this.conditions, this.default].hash;
+  // }
 
-  eql() {}
+  // eql() {}
 }
