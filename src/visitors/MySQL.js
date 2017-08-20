@@ -1,3 +1,4 @@
+import isEmpty from 'lodash/isEmpty';
 import ToSql from './ToSql';
 
 export default class MySQL extends ToSql {
@@ -47,6 +48,21 @@ export default class MySQL extends ToSql {
   visitUpdateStatement(o, collector) {
     collector.append('UPDATE ');
     collector = this.visit(o.relation, collector);
+
+    if (!isEmpty(o.values)) {
+      collector.append(' SET ');
+      collector = this.injectJoin(o.values, collector, ', ');
+    }
+
+    if (!isEmpty(o.wheres)) {
+      collector.append(' WHERE ');
+      collector = this.injectJoin(o.wheres, collector, ' AND ');
+    }
+
+    if (!isEmpty(o.orders)) {
+      collector.append(' ORDER BY ');
+      collector = this.injectJoin(o.orders, collector, ', ');
+    }
 
     return this.maybeVisit(o.limit, collector);
   }
