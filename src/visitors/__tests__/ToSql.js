@@ -162,9 +162,8 @@ describe('ToSql', () => {
     });
   });
 
-  // todo
+  // TODO
   // it('should visit string subclass', () => {});
-
   // it('should visit_Class', () => {});
 
   it('should escape LIMIT', () => {
@@ -187,9 +186,10 @@ describe('ToSql', () => {
     );
   });
 
+  // TODO
   // it('should visitDateTime', () => {});
-
   // it('should visitFloat', () => {});
+  // it('should visit_Not', () => {});
 
   it('should apply Not to the whole expression', () => {
     const table = new Arel.Table('users');
@@ -205,19 +205,14 @@ describe('ToSql', () => {
     expect(compile(as)).toBe('foo AS bar');
   });
 
-  it('should visitBignum', () => {});
-
-  it('should visitHash', () => {});
-
-  it('should visitSet', () => {});
-
-  it('should visitBigDecimal', () => {});
-
-  it('should visitDate', () => {});
-
-  it('should visitNilClass', () => {});
-
-  it('unsupported input should raise UnsupportedVisitError', () => {});
+  // TODO
+  // it('should visitBignum', () => {});
+  // it('should visitHash', () => {});
+  // it('should visitSet', () => {});
+  // it('should visitBigDecimal', () => {});
+  // it('should visitDate', () => {});
+  // it('should visitNilClass', () => {});
+  // it('unsupported input should raise UnsupportedVisitError', () => {});
 
   it('should visitSelectManager, which is a subquery', () => {
     const mgr = new Arel.Table('foo').project('bar');
@@ -247,20 +242,52 @@ describe('ToSql', () => {
     expect(compile(node)).toBe(`"id" = "id"`);
   });
 
-  it('should visitAttributesTime', () => {});
+  // TODO
+  // it('should visitAttributesTime', () => {});
+  // it('should visitTrueClass', () => {});
 
-  it('should visitTrueClass', () => {});
+  describe('Nodes.Matches', () => {
+    it('should know how to visit', () => {
+      const node = table.column('name').matches('foo%');
+      expect(compile(node)).toBe(`"users"."name" LIKE 'foo%'`);
+    });
 
-  describe('Matches', () => {
-    it('should know how to visit', () => {});
-    it('can handle ESCAPE', () => {});
-    it('can handle subqueries', () => {});
+    it('can handle ESCAPE', () => {
+      const node = table.column('name').matches('foo!%', '!');
+      expect(compile(node)).toBe(`"users"."name" LIKE 'foo!%' ESCAPE '!'`);
+    });
+
+    it('can handle subqueries', () => {
+      const subquery = table
+        .project('id')
+        .where(table.column('name').matches('foo%'));
+      const node = attr.in(subquery);
+      expect(compile(node)).toBe(
+        `"users"."id" IN (SELECT id FROM "users" WHERE "users"."name" LIKE 'foo%')`
+      );
+    });
   });
 
-  describe('DoesNotMatch', () => {
-    it('should know how to visit', () => {});
-    it('can handle ESCAPE', () => {});
-    it('can handle subqueries', () => {});
+  describe('Nodes.DoesNotMatch', () => {
+    it('should know how to visit', () => {
+      const node = table.column('name').doesNotMatch('foo%');
+      expect(compile(node)).toBe(`"users"."name" NOT LIKE 'foo%'`);
+    });
+
+    it('can handle ESCAPE', () => {
+      const node = table.column('name').doesNotMatch('foo!%', '!');
+      expect(compile(node)).toBe(`"users"."name" NOT LIKE 'foo!%' ESCAPE '!'`);
+    });
+
+    it('can handle subqueries', () => {
+      const subquery = table
+        .project('id')
+        .where(table.column('name').doesNotMatch('foo%'));
+      const node = attr.in(subquery);
+      expect(compile(node)).toBe(
+        `"users"."id" IN (SELECT id FROM "users" WHERE "users"."name" NOT LIKE 'foo%')`
+      );
+    });
   });
 
   describe('Nodes.Ordering', () => {
@@ -282,13 +309,12 @@ describe('ToSql', () => {
       expect(compile(node)).toBe(`1=0`);
     });
 
+    // TODO
     // it('can handle two dot ranges', () => {
     //   const node = attr.between(1, 3);
     //   expect(compile(node)).toBe(`"users"."id" BETWEEN 1 AND 3`);
     // });
-
     // it('can handle three dot ranges', () => {});
-
     // it('can handle ranges bounded by infinity', () => {});
 
     it('can handle subqueries', () => {
@@ -395,13 +421,23 @@ describe('ToSql', () => {
     });
   });
 
-  describe('UnaryOperation', () => {});
+  // TODO
+  // describe('Nodes.UnaryOperation', () => {
+  //   it('should handle BitwiseNot', () => {});
+  //   it('should handle arbitrary operators', () => {});
+  // });
 
   describe('Nodes.NotIn', () => {
     it('should know how to visit', () => {
       const node = attr.notIn([1, 2, 3]);
       expect(compile(node)).toBe(`"users"."id" NOT IN (1, 2, 3)`);
     });
+
+    it('should return 1=1 when empty right which is always true', () => {});
+    it('can handle two dot ranges', () => {});
+    it('can handle three dot ranges', () => {});
+    it('can handle ranges bounded by infinity', () => {});
+    it('can handle subqueries', () => {});
   });
 
   describe('Constants', () => {
@@ -422,10 +458,10 @@ describe('ToSql', () => {
     });
   });
 
-  describe('distinct on', () => {});
-
-  describe('Regexp', () => {});
-  describe('NotRegexp', () => {});
+  // TODO
+  // describe('distinct on', () => {});
+  // describe('Nodes.Regexp', () => {});
+  // describe('Nodes.NotRegexp', () => {});
 
   describe('Nodes.Case', () => {
     it('supports simple case expressions', () => {
