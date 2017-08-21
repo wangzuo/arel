@@ -2,7 +2,7 @@ import includes from 'lodash/includes';
 import zipObject from 'lodash/zipObject';
 import isNull from 'lodash/isNull';
 import isNumber from 'lodash/isNumber';
-import { ToSql } from './src/visitors';
+import { ToSql } from './visitors';
 
 class Column {
   constructor(name, type) {

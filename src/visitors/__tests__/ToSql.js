@@ -1,8 +1,5 @@
-import { Base } from '../../../FakeRecord';
 import * as Arel from '../../Arel';
 import ToSql from '../ToSql';
-import SQLString from '../../collectors/SQLString';
-import { Reduce } from '../../visitors';
 
 const { Table } = Arel;
 const {
@@ -21,6 +18,8 @@ const {
   Equality,
   NotEqual
 } = Arel.nodes;
+const { SQLString } = Arel.collectors;
+const { Reduce } = Arel.visitors;
 
 let conn = null;
 let visitor = null;
@@ -32,8 +31,7 @@ function compile(node) {
 }
 
 beforeEach(() => {
-  conn = new Base();
-  visitor = new ToSql(conn.connection);
+  visitor = new ToSql(Table.engine.connection);
   table = new Table('users');
   attr = table.column('id');
 });

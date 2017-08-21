@@ -1,6 +1,6 @@
 import isNull from 'lodash/isNull';
 import extend from 'lodash/extend';
-import { Base } from '../FakeRecord';
+import { Base } from './FakeRecord';
 import Crud from './Crud';
 import FactoryMethods from './FactoryMethods';
 import SelectManager from './SelectManager';
