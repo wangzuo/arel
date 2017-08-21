@@ -15,7 +15,8 @@ export default class SqlLiteral {
     extend(this, OrderPredications);
   }
 
-  encodeWith(coder) {}
+  // TODO
+  // encodeWith(coder) {}
 
   toString() {
     return this.value;

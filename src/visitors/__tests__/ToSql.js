@@ -1,4 +1,4 @@
-import { Base } from '../../FakeRecord';
+import { Base } from '../../../FakeRecord';
 import * as Arel from '../../Arel';
 import ToSql from '../ToSql';
 import SQLString from '../../collectors/SQLString';
