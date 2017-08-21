@@ -1,3 +1,4 @@
+import isNull from 'lodash/isNull';
 import extend from 'lodash/extend';
 import { Base } from './FakeRecord';
 import Crud from './Crud';
@@ -83,8 +84,14 @@ export default class Table {
 
   hash() {}
   eql() {}
-  typeCastForDatabase() {}
-  ableToTypeCast() {}
+
+  typeCastForDatabase(attributeName, value) {
+    return this.typeCaster.typeCastForDatabase(attributeName, value);
+  }
+
+  ableToTypeCast() {
+    return !isNull(this.typeCaster);
+  }
 }
 
 Table.engine = new Base();

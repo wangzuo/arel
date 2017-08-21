@@ -23,7 +23,7 @@ export default class Attribute {
   }
 
   typeCastForDatabase(value) {
-    return this.relation.typeCastForDatabase(name, value);
+    return this.relation.typeCastForDatabase(this.name, value);
   }
 
   ableToTypeCast() {

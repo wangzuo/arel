@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import * as Arel from '../../Arel';
 import Table from '../../Table';
 
@@ -756,6 +757,28 @@ describe('equality', () => {
 });
 
 describe('type casting', () => {
-  // it('does not type cast by default', () => {});
-  // it('type casts when given an explicit caster', () => {});
+  it('does not type cast by default', () => {
+    const table = new Table('foo');
+    const condition = table.column('id').eq('1');
+
+    expect(table.ableToTypeCast()).toBe(false);
+    expect(condition.toSql()).toBe(`"foo"."id" = '1'`);
+  });
+
+  it('type casts when given an explicit caster', () => {
+    const fakeCaster = {
+      typeCastForDatabase(attrName, value) {
+        return attrName === 'id' ? _.toNumber(value) : value;
+      }
+    };
+
+    const table = new Table('foo', { typeCaster: fakeCaster });
+    const condition = table
+      .column('id')
+      .eq('1')
+      .and(table.column('other_id').eq('2'));
+
+    expect(table.ableToTypeCast()).toBe(true);
+    expect(condition.toSql()).toBe(`"foo"."id" = 1 AND "foo"."other_id" = '2'`);
+  });
 });
