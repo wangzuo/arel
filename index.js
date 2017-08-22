@@ -1,1 +1,1 @@
-module.exports = require('./lib/Arel');
+module.exports = require('./dist/Arel');
