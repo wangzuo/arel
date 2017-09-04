@@ -7,7 +7,6 @@ export default class TreeManager {
     const { default: FactoryMethods } = require('./FactoryMethods');
 
     this.ctx = null;
-    this.bindValues = [];
     extend(this, FactoryMethods);
   }
 

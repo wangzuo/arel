@@ -24,18 +24,11 @@ const {
 const { Attribute } = Arel.attributes;
 
 describe('SelectManager', () => {
-  function testJoinSources() {
+  test('joinSources', () => {
     const manager = new SelectManager();
-    manager.joinSources.push(new StringJoin(Nodes.build_quoted('foot')));
+    manager.joinSources.push(new StringJoin(buildQuoted('foo')));
     expect(manager.toSql()).toEqual(`SELECT FROM 'foo'`);
-  }
-
-  function testManagerStoresBindValues() {
-    const manager = new SelectManager();
-    expect(manager.bindValues).toEqual([]);
-    manager.bindValues = [1];
-    expect(manager.bindValues).toEqual([1]);
-  }
+  });
 
   describe('backwards compatibility', () => {
     describe('project', () => {
