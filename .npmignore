@@ -2,3 +2,4 @@ src/
 repl/
 coverage/
 _config.yml
+yarn.lock
