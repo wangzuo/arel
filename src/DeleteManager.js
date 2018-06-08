@@ -1,3 +1,4 @@
+// @flow
 import TreeManager from './TreeManager';
 
 export default class DeleteManager extends TreeManager {
@@ -14,7 +15,7 @@ export default class DeleteManager extends TreeManager {
     return this;
   }
 
-  take(limit) {
+  take(limit: number) {
     if (limit) {
       const { Limit, buildQuoted } = require('./nodes');
       this.ast.limit = new Limit(buildQuoted(limit));

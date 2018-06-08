@@ -1,3 +1,4 @@
+// @flow
 import last from 'lodash/last';
 import Node from './Node';
 import Binary from './Binary';

@@ -1,3 +1,4 @@
+// @flow
 import Binary from './Binary';
 
 export default class Equality extends Binary {

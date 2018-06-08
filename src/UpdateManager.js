@@ -1,3 +1,4 @@
+// @flow
 import TreeManager from './TreeManager';
 
 export default class UpdateManager extends TreeManager {

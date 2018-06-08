@@ -1,3 +1,4 @@
+// @flow
 import isString from 'lodash/isString';
 import As from './nodes/As';
 import SqlLiteral from './nodes/SqlLiteral';

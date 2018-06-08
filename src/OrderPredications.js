@@ -1,3 +1,4 @@
+// @flow
 const OrderPredications = {
   asc() {
     const { Ascending } = require('./nodes');

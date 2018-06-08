@@ -1,3 +1,4 @@
+// @flow
 import isNull from 'lodash/isNull';
 import Node from './Node';
 import Unary from './Unary';

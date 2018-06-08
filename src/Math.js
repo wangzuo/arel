@@ -1,3 +1,4 @@
+// @flow
 const Math = {
   add(other) {
     const { Addition } = require('./nodes');

@@ -1,3 +1,4 @@
+// @flow
 import isNull from 'lodash/isNull';
 import extend from 'lodash/extend';
 import { Base } from './FakeRecord';
@@ -8,7 +9,10 @@ import { TableAlias, InnerJoin, OuterJoin } from './nodes';
 import { Attribute } from './attributes';
 
 export default class Table {
-  constructor(name, options = {}) {
+  name: string;
+  tableAlias: ?string;
+
+  constructor(name: string, options = {}) {
     const as = options.as || null;
     const typeCaster = options.typeCaster || null;
 
@@ -31,7 +35,7 @@ export default class Table {
     return this.name;
   }
 
-  alias(name) {
+  alias(name: string) {
     name = name || `${this.name}_2`;
     return new TableAlias(this, name);
   }
@@ -66,19 +70,19 @@ export default class Table {
     return this.from().project(...things);
   }
 
-  take(amount) {
+  take(amount: number) {
     return this.from().take(amount);
   }
 
-  skip(amount) {
+  skip(amount: number) {
     return this.from().skip(amount);
   }
 
-  having(expr) {
+  having(expr: string) {
     return this.from().having(expr);
   }
 
-  column(name) {
+  column(name: string) {
     return new Attribute(this, name);
   }
 

@@ -1,3 +1,4 @@
+// @flow
 import Node from './Node';
 
 export default class Unary extends Node {

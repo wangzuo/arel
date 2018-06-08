@@ -1,3 +1,4 @@
+// @flow
 export BindSubstitute from './visitors/BindSubstitute';
 export BindVisitor from './visitors/BindVisitor';
 export DepthFirst from './visitors/DepthFirst';

@@ -1,3 +1,4 @@
+// @flow
 const WindowPredications = {
   over(expr = null) {
     const { Over } = require('./nodes');

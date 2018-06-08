@@ -1,3 +1,4 @@
+// @flow
 import isString from 'lodash/isString';
 import Node from './Node';
 import Unary from './Unary';
@@ -53,7 +54,9 @@ export default class Window extends Node {
 }
 
 export class NamedWindow extends Window {
-  constructor(name) {
+  name: string;
+
+  constructor(name: string) {
     super();
     this.name = name;
   }

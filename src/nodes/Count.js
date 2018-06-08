@@ -1,3 +1,4 @@
+// @flow
 import Func from './Func';
 
 export default class Count extends Func {

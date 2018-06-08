@@ -1,3 +1,4 @@
+// @flow
 import Node from './Node';
 import SelectCore from './SelectCore';
 

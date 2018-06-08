@@ -1,3 +1,4 @@
+// @flow
 import extend from 'lodash/extend';
 import PlainString from './collectors/PlainString';
 import SQLString from './collectors/SQLString';

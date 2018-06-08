@@ -1,3 +1,4 @@
+// @flow
 import isEmpty from 'lodash/isEmpty';
 import Binary from './Binary';
 

@@ -1,3 +1,4 @@
+// @flow
 import Unary from './Unary';
 
 export default class UnqualifiedColumn extends Unary {

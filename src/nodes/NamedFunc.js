@@ -1,3 +1,4 @@
+// @flow
 import Func from './Func';
 
 export default class NamedFunc extends Func {

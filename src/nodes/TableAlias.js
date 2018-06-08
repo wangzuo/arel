@@ -1,3 +1,4 @@
+// @flow
 import Binary from './Binary';
 import Attribute from '../attributes/Attribute';
 

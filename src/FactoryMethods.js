@@ -1,3 +1,4 @@
+// @flow
 const FactoryMethods = {
   createTrue() {
     const { True } = require('./nodes');

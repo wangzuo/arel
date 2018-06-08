@@ -1,3 +1,4 @@
+// @flow
 import { Attribute } from './attributes';
 import Node from './nodes/Node';
 import BindParam from './nodes/BindParam';

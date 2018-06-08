@@ -1,3 +1,4 @@
+// @flow
 import isArray from 'lodash/isArray';
 
 const Predications = {

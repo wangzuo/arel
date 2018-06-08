@@ -1,5 +1,6 @@
+// @flow
 const Expressions = {
-  count(distinct = false) {
+  count(distinct: boolean = false) {
     const { Count } = require('./nodes');
     return new Count([this], distinct);
   },
@@ -24,7 +25,7 @@ const Expressions = {
     return new Avg([this]);
   },
 
-  extract(field) {
+  extract(field: string) {
     const { Extract } = require('./nodes');
     return new Extract([this], field);
   }

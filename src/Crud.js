@@ -1,3 +1,4 @@
+// @flow
 const Crud = {
   compileUpdate(values, pk) {
     const { SqlLiteral } = require('./nodes');

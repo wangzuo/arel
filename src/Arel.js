@@ -1,3 +1,4 @@
+// @flow
 import { SqlLiteral } from './nodes';
 
 export const sql = rawSql => new SqlLiteral(rawSql);
