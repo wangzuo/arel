@@ -1,6 +1,9 @@
+// @flow
 import PlainString from './PlainString';
 
 export default class SQLString extends PlainString {
+  bindIndex: number;
+
   constructor() {
     super();
     this.bindIndex = 1;
@@ -12,7 +15,7 @@ export default class SQLString extends PlainString {
     return this;
   }
 
-  compile(bvs) {
+  compile() {
     return this.value;
   }
 }

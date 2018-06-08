@@ -1,16 +1,19 @@
+// @flow
 import BindParam from '../nodes/BindParam';
 
 export default class Bind {
+  parts: Array<string>;
+
   constructor() {
     this.parts = [];
   }
 
-  append(str) {
+  append(str: string) {
     this.parts.push(str);
     return this;
   }
 
-  addBind(bind) {
+  addBind(bind: string) {
     this.parts.push(bind);
     return this;
   }
