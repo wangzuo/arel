@@ -2,10 +2,11 @@
   "name": "arel",
   "version": "0.3.4",
   "description": "arel",
-  "main": "index.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "scripts": {
     "test": "jest --coverage",
-    "build": "rm -rf dist && babel src --out-dir dist --ignore '__tests__/*.js'",
+    "build": "NODE_ENV=production rollup -c",
     "pretest": "npm run build",
     "prepublish": "npm run test"
   },
@@ -20,14 +21,21 @@
   },
   "homepage": "https://github.com/wangzuo/arel#readme",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-do-expressions": "^7.2.0",
+    "@babel/plugin-proposal-export-default-from": "^7.2.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-flow": "^7.0.0",
     "babel-jest": "^24.5.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-flow": "^6.23.0",
-    "babel-preset-stage-0": "^6.24.1",
     "flow-bin": "^0.95.1",
-    "jest": "^24.5.0"
+    "jest": "^24.5.0",
+    "rollup": "^1.6.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-node-resolve": "^4.0.1"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -35,8 +43,8 @@
     ]
   },
   "dependencies": {
-    "babel-runtime": "^6.25.0",
-    "blueimp-md5": "^2.8.0",
-    "lodash": "^4.17.4"
+    "@babel/runtime": "^7.3.4",
+    "blueimp-md5": "^2.10.0",
+    "lodash": "^4.17.11"
   }
 }

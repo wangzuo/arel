@@ -8,3 +8,5 @@ class Informix extends ToSql {
   visitOffset(o, collector) {}
   visitLimit(o, collector) {}
 }
+
+export default Informix;
