@@ -10,6 +10,7 @@
     "pretest": "npm run build",
     "prepublish": "npm run test"
   },
+  "files": ["dist"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wangzuo/arel.git"
@@ -38,9 +39,7 @@
     "rollup-plugin-node-resolve": "^4.0.1"
   },
   "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.js"
-    ]
+    "collectCoverageFrom": ["src/**/*.js"]
   },
   "dependencies": {
     "@babel/runtime": "^7.3.4",
