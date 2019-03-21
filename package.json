@@ -46,7 +46,7 @@
     ]
   },
   "dependencies": {
-    "@babel/runtime": "^7.3.4",
+    "@babel/runtime": "^7.4.2",
     "blueimp-md5": "^2.10.0",
     "lodash": "^4.17.11"
   }
